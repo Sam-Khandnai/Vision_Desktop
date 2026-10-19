@@ -5,6 +5,7 @@ const net = require('net')
 const http = require('http')
 const crypto = require('crypto')
 const { spawn, execFile } = require('child_process')
+const { autoUpdater } = require('electron-updater')
 
 const isDev = process.env.VISION_DEV === '1'
 const token = crypto.randomBytes(32).toString('hex') // per-launch secret shared with the backend only
@@ -157,10 +158,35 @@ ipcMain.handle('shell:open', (_e, url) => {
   if (typeof url === 'string' && /^https?:\/\//.test(url)) return shell.openExternal(url)
 })
 
+// ---- automatic updates (GitHub Releases) ---------------------------------------
+let lastUpdate = null
+function sendUpdate(patch) {
+  lastUpdate = { ...(lastUpdate || {}), ...patch }
+  if (win && !win.isDestroyed()) win.webContents.send('update:status', lastUpdate)
+}
+function updaterLog(msg) {
+  try { fs.appendFileSync(path.join(app.getPath('userData'), 'logs', 'updater.log'), `${new Date().toISOString()} ${msg}\n`) } catch (_) {}
+}
+function setupUpdates() {
+  if (!app.isPackaged) return // development builds never update themselves
+  autoUpdater.autoDownload = true
+  autoUpdater.autoInstallOnAppQuit = true
+  autoUpdater.on('update-available', (i) => { updaterLog('available ' + i.version); sendUpdate({ state: 'downloading', version: i.version, percent: 0 }) })
+  autoUpdater.on('download-progress', (p) => sendUpdate({ state: 'downloading', percent: Math.round(p.percent) }))
+  autoUpdater.on('update-downloaded', (i) => { updaterLog('downloaded ' + i.version); sendUpdate({ state: 'ready', version: i.version }) })
+  autoUpdater.on('error', (e) => updaterLog('error ' + (e && e.message)))
+  const check = () => autoUpdater.checkForUpdates().catch((e) => updaterLog('check failed ' + (e && e.message)))
+  setTimeout(check, 10000)
+  setInterval(check, 6 * 60 * 60 * 1000)
+}
+ipcMain.handle('update:get', () => lastUpdate)
+ipcMain.handle('update:install', () => autoUpdater.quitAndInstall())
+
 app.whenReady().then(async () => {
   try {
     await startBackend()
     createWindow()
+    setupUpdates()
   } catch (e) {
     dialog.showErrorBox('Vision', String(e.message || e))
     quitting = true

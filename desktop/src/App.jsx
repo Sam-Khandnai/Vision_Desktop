@@ -5,6 +5,7 @@ import { initialLang, makeT } from './i18n'
 import Catalog from './components/Catalog'
 import Chat from './components/Chat'
 import Mascot from './components/Mascot'
+import UpdateBanner from './components/UpdateBanner'
 import Settings from './components/Settings'
 import Sidebar from './components/Sidebar'
 import { Modal } from './components/ui'
@@ -106,6 +107,8 @@ export default function App() {
           onOpenCatalog={() => setView('catalog')}
         />
       )}
+
+      <UpdateBanner />
 
       {confirmState && (
         <Modal title={t('confirmTitle')} onClose={() => { confirmState.resolve(false); setConfirmState(null) }}

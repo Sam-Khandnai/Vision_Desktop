@@ -1,4 +1,7 @@
 const fa = {
+  updateDownloading: 'در حال دانلود نسخه‌ی {v}…',
+  updateReady: 'نسخه‌ی {v} آماده‌ی نصب است',
+  updateRestart: 'راه‌اندازی مجدد و به‌روزرسانی',
   starting: 'در حال راه‌اندازی دستیار…',
   close: 'بستن', browse: 'انتخاب…', copy: 'کپی', copied: 'کپی شد', cancel: 'انصراف', confirm: 'تأیید', confirmTitle: 'مطمئنی؟',
   save: 'ذخیره', saved: 'ذخیره شد', add: 'افزودن', added: 'اضافه شد', delete: 'حذف', edit: 'ویرایش', rename: 'تغییر نام', back: 'بازگشت',
@@ -45,6 +48,9 @@ const fa = {
   risk_low: 'کم‌خطر', risk_medium: 'با دقت', risk_high: 'دسترسی بالا',
 }
 const en = {
+  updateDownloading: 'Downloading version {v}\u2026',
+  updateReady: 'Version {v} is ready to install',
+  updateRestart: 'Restart and update',
   starting: 'Starting the assistant\u2026',
   close: 'Close', browse: 'Browse…', copy: 'Copy', copied: 'Copied', cancel: 'Cancel', confirm: 'Confirm', confirmTitle: 'Are you sure?',
   save: 'Save', saved: 'Saved', add: 'Add', added: 'Added', delete: 'Delete', edit: 'Edit', rename: 'Rename', back: 'Back',

@@ -1,4 +1,4 @@
-git remote add origin https://github.com/Sam-Khandnai/Vision_Desktop.git"""Generates src/vision/data/mcp_catalog.json (bilingual: fa + en).
+"""Generates src/vision/data/mcp_catalog.json (bilingual: fa + en).
 Run: uv run python scripts/build_catalog.py
 Then verify: uv run python scripts/check_catalog.py   (needs internet)
 """

@@ -1,6 +1,6 @@
 [project]
 name = "vision"
-version = "0.1.0"
+version = "0.1.1"
 description = "Vision — a local-first desktop AI assistant (OpenAI-compatible providers + MCP tools)"
 readme = "README.md"
 requires-python = ">=3.12"

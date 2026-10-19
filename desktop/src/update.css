@@ -1,0 +1,4 @@
+.update-banner { position: fixed; right: 18px; bottom: 18px; z-index: 70; display: flex; align-items: center; gap: 12px; background: var(--panel); border: 1px solid var(--accent); border-radius: 14px; padding: 10px 14px; box-shadow: 0 12px 34px rgba(0, 0, 0, .45); max-width: 440px; }
+.update-text { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.update-bar { width: 210px; height: 4px; background: var(--panel-2); border-radius: 4px; overflow: hidden; }
+.update-bar span { display: block; height: 100%; background: var(--accent); transition: width .3s; }

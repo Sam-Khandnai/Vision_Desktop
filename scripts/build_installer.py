@@ -108,12 +108,13 @@ def copy_tools(with_node: bool) -> None:
         print("note: Node.js is only bundled on Windows; on this OS npx servers use the user's own Node.js")
 
 
-def build_app(unpacked: bool) -> None:
+def build_app(unpacked: bool, publish: bool = False) -> None:
     npm = need("npm")
     if not (DESKTOP / "node_modules").exists():
         run([npm, "install"], cwd=DESKTOP)
     run([npm, "run", "build"], cwd=DESKTOP)
     cmd = [need("npx"), "electron-builder"] + (["--dir"] if unpacked else [])
+    cmd += ["--publish", "always"] if publish else ["--publish", "never"]
     run(cmd, cwd=DESKTOP, env={"CSC_IDENTITY_AUTO_DISCOVERY": "false"})
 
 
@@ -122,6 +123,7 @@ def main() -> None:
     ap.add_argument("--dir", action="store_true", help="unpacked app only, no installer")
     ap.add_argument("--no-node", action="store_true", help="do not bundle Node.js")
     ap.add_argument("--backend-only", action="store_true")
+    ap.add_argument("--publish", action="store_true", help="upload the installer to GitHub Releases (needs GH_TOKEN)")
     a = ap.parse_args()
     STAGE.mkdir(parents=True, exist_ok=True)
     freeze_backend()
@@ -129,7 +131,7 @@ def main() -> None:
     if a.backend_only:
         return
     copy_tools(with_node=not a.no_node)
-    build_app(unpacked=a.dir)
+    build_app(unpacked=a.dir, publish=a.publish)
     print("\nDone. Output:", DESKTOP / "release")
 
 

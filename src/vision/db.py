@@ -92,10 +92,55 @@ def connect() -> Iterator[sqlite3.Connection]:
         conn.close()
 
 
+# Schema changes for released versions go here, at the END, as (version, SQL). Never edit SCHEMA above or old entries.
+# Example:  (2, "ALTER TABLE conversations ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0;"),
+MIGRATIONS: list[tuple[int, str]] = []
+BASELINE_VERSION = 1  # SCHEMA above is version 1 (databases from the first releases have user_version 0)
+KEEP_BACKUPS = 5
+
+
+def _read_version(path) -> int:
+    conn = sqlite3.connect(path)
+    try:
+        return conn.execute("PRAGMA user_version").fetchone()[0]
+    finally:
+        conn.close()
+
+
+def _backup(path, version: int):
+    folder = config.data_dir() / "backups"
+    folder.mkdir(exist_ok=True)
+    dest = folder / f"vision-v{version}-{time.strftime('%Y%m%d-%H%M%S')}.db"
+    src, dst = sqlite3.connect(path), sqlite3.connect(dest)
+    try:
+        src.backup(dst)  # consistent copy even while the database is in WAL mode
+    finally:
+        dst.close()
+        src.close()
+    for old in sorted(folder.glob("vision-v*.db"))[:-KEEP_BACKUPS]:
+        old.unlink()
+    return dest
+
+
 def init_db() -> None:
+    path = config.db_path()
+    existing = path.exists() and path.stat().st_size > 0
+    start = max(_read_version(path), BASELINE_VERSION) if existing else BASELINE_VERSION
+    pending = [(v, sql) for v, sql in sorted(MIGRATIONS) if v > start]
+    backup = _backup(path, start) if (existing and pending) else None
     with connect() as conn:
         conn.execute("PRAGMA journal_mode=WAL")
         conn.executescript(SCHEMA)
+        conn.execute(f"PRAGMA user_version = {start}")
+    for version, sql in pending:
+        with connect() as conn:
+            try:
+                conn.executescript(f"BEGIN;\n{sql}\nPRAGMA user_version = {version};\nCOMMIT;")
+            except Exception as exc:
+                raise RuntimeError(
+                    f"Database migration to version {version} failed: {exc}. "
+                    + (f"Your data was backed up to {backup}." if backup else "")
+                ) from exc
 
 
 def row_to_dict(row: sqlite3.Row | None) -> dict[str, Any] | None:
