@@ -1,0 +1,3031 @@
+{
+  "categories": {
+    "files": {
+      "fa": "فایل و سند",
+      "en": "Files & Docs"
+    },
+    "web": {
+      "fa": "وب و جستجو",
+      "en": "Web & Search"
+    },
+    "dev": {
+      "fa": "برنامه‌نویسی",
+      "en": "Development"
+    },
+    "cloud": {
+      "fa": "ابر و زیرساخت",
+      "en": "Cloud & Infrastructure"
+    },
+    "data": {
+      "fa": "داده و دیتابیس",
+      "en": "Data & Databases"
+    },
+    "productivity": {
+      "fa": "بهره‌وری",
+      "en": "Productivity"
+    },
+    "comms": {
+      "fa": "ارتباطات",
+      "en": "Communication"
+    },
+    "business": {
+      "fa": "کسب‌وکار و مالی",
+      "en": "Business & Finance"
+    },
+    "ai": {
+      "fa": "هوش و حافظه",
+      "en": "AI & Memory"
+    },
+    "creative": {
+      "fa": "طراحی و رسانه",
+      "en": "Design & Media"
+    },
+    "system": {
+      "fa": "سیستم و خودکارسازی",
+      "en": "System & Automation"
+    }
+  },
+  "servers": [
+    {
+      "id": "filesystem",
+      "name": "Filesystem",
+      "category": "files",
+      "description": {
+        "fa": "خواندن، جستجو و ویرایش فایل‌ها در یک پوشه‌ی مشخص.",
+        "en": "Read, search and edit files inside one folder."
+      },
+      "risk": "high",
+      "inputs": [
+        {
+          "key": "folder",
+          "label": {
+            "fa": "پوشه‌ی مجاز",
+            "en": "Allowed folder"
+          },
+          "type": "path",
+          "target": "arg",
+          "required": true,
+          "help": {
+            "fa": "فقط به همین پوشه دسترسی داده می‌شود.",
+            "en": "Only this folder will be accessible."
+          }
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "{{folder}}"
+      ],
+      "package": "@modelcontextprotocol/server-filesystem",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem"
+    },
+    {
+      "id": "markitdown",
+      "name": "MarkItDown",
+      "category": "files",
+      "description": {
+        "fa": "تبدیل PDF، Word، Excel، PowerPoint و تصویر به متن Markdown.",
+        "en": "Convert PDF, Word, Excel, PowerPoint and images to Markdown text."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "markitdown-mcp"
+      ],
+      "package": "markitdown-mcp",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/markitdown-mcp/"
+    },
+    {
+      "id": "pandoc",
+      "name": "Pandoc",
+      "category": "files",
+      "description": {
+        "fa": "تبدیل فرمت اسناد (Markdown، DOCX، HTML، PDF و…).",
+        "en": "Convert documents between formats (Markdown, DOCX, HTML, PDF…)."
+      },
+      "risk": "medium",
+      "inputs": [],
+      "note": {
+        "fa": "برای خروجی PDF باید Pandoc روی سیستم نصب باشد.",
+        "en": "Pandoc must be installed on your system for PDF output."
+      },
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "mcp-pandoc"
+      ],
+      "package": "mcp-pandoc",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/mcp-pandoc/"
+    },
+    {
+      "id": "excel",
+      "name": "Excel",
+      "category": "files",
+      "description": {
+        "fa": "خواندن و نوشتن فایل‌های Excel بدون نیاز به نصب Office.",
+        "en": "Read and write Excel files without Office installed."
+      },
+      "risk": "medium",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@negokaz/excel-mcp-server"
+      ],
+      "package": "@negokaz/excel-mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@negokaz/excel-mcp-server"
+    },
+    {
+      "id": "word",
+      "name": "Word Documents",
+      "category": "files",
+      "description": {
+        "fa": "ساخت و ویرایش فایل‌های Word (docx).",
+        "en": "Create and edit Word (docx) files."
+      },
+      "risk": "medium",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "--with",
+        "mcp<2",
+        "--from",
+        "office-word-mcp-server",
+        "word_mcp_server"
+      ],
+      "package": "office-word-mcp-server",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/office-word-mcp-server/"
+    },
+    {
+      "id": "powerpoint",
+      "name": "PowerPoint",
+      "category": "files",
+      "description": {
+        "fa": "ساخت و ویرایش ارائه‌های PowerPoint.",
+        "en": "Create and edit PowerPoint presentations."
+      },
+      "risk": "medium",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "--with",
+        "mcp<2",
+        "--from",
+        "office-powerpoint-mcp-server",
+        "ppt_mcp_server"
+      ],
+      "package": "office-powerpoint-mcp-server",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/office-powerpoint-mcp-server/"
+    },
+    {
+      "id": "pdf-reader",
+      "name": "PDF Reader",
+      "category": "files",
+      "description": {
+        "fa": "استخراج متن و اطلاعات صفحه‌ها از فایل‌های PDF.",
+        "en": "Extract text and page details from PDF files."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@sylphlab/pdf-reader-mcp"
+      ],
+      "package": "@sylphlab/pdf-reader-mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@sylphlab/pdf-reader-mcp"
+    },
+    {
+      "id": "obsidian",
+      "name": "Obsidian",
+      "category": "files",
+      "description": {
+        "fa": "جستجو و ویرایش یادداشت‌های Obsidian.",
+        "en": "Search and edit your Obsidian notes."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "OBSIDIAN_API_KEY",
+          "label": {
+            "fa": "کلید API افزونه",
+            "en": "Plugin API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "OBSIDIAN_API_KEY"
+        },
+        {
+          "key": "OBSIDIAN_HOST",
+          "label": {
+            "fa": "آدرس",
+            "en": "Host"
+          },
+          "type": "text",
+          "target": "env",
+          "required": false,
+          "name": "OBSIDIAN_HOST",
+          "default": "127.0.0.1"
+        }
+      ],
+      "note": {
+        "fa": "افزونه‌ی «Local REST API» باید در Obsidian نصب و روشن باشد.",
+        "en": "The “Local REST API” plugin must be installed and enabled in Obsidian."
+      },
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "mcp-obsidian"
+      ],
+      "package": "mcp-obsidian",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/mcp-obsidian/"
+    },
+    {
+      "id": "ripgrep",
+      "name": "Ripgrep",
+      "category": "files",
+      "description": {
+        "fa": "جستجوی سریع متن داخل فایل‌ها و پوشه‌ها.",
+        "en": "Fast text search across files and folders."
+      },
+      "risk": "low",
+      "inputs": [],
+      "note": {
+        "fa": "ابزار ripgrep باید روی سیستم نصب باشد.",
+        "en": "ripgrep must be installed on your system."
+      },
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-ripgrep"
+      ],
+      "package": "mcp-ripgrep",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/mcp-ripgrep"
+    },
+    {
+      "id": "fetch",
+      "name": "Fetch",
+      "category": "web",
+      "description": {
+        "fa": "دریافت یک صفحه‌ی وب و تبدیل آن به متن خوانا.",
+        "en": "Fetch a web page and turn it into readable text."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "mcp-server-fetch"
+      ],
+      "package": "mcp-server-fetch",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://github.com/modelcontextprotocol/servers/tree/main/src/fetch"
+    },
+    {
+      "id": "duckduckgo",
+      "name": "DuckDuckGo Search",
+      "category": "web",
+      "description": {
+        "fa": "جستجوی وب بدون نیاز به کلید API.",
+        "en": "Web search with no API key needed."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "duckduckgo-mcp-server"
+      ],
+      "package": "duckduckgo-mcp-server",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/duckduckgo-mcp-server/"
+    },
+    {
+      "id": "brave-search",
+      "name": "Brave Search",
+      "category": "web",
+      "description": {
+        "fa": "جستجوی وب و اخبار با Brave.",
+        "en": "Web and news search with Brave."
+      },
+      "risk": "low",
+      "inputs": [
+        {
+          "key": "BRAVE_API_KEY",
+          "label": {
+            "fa": "کلید API بریو",
+            "en": "Brave API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "BRAVE_API_KEY"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@brave/brave-search-mcp-server"
+      ],
+      "package": "@brave/brave-search-mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@brave/brave-search-mcp-server"
+    },
+    {
+      "id": "tavily",
+      "name": "Tavily",
+      "category": "web",
+      "description": {
+        "fa": "جستجو و استخراج محتوا، ساخته‌شده برای عامل‌های هوش مصنوعی.",
+        "en": "Search and content extraction built for AI agents."
+      },
+      "risk": "low",
+      "inputs": [
+        {
+          "key": "TAVILY_API_KEY",
+          "label": {
+            "fa": "کلید API تاویلی",
+            "en": "Tavily API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "TAVILY_API_KEY"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "tavily-mcp"
+      ],
+      "package": "tavily-mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/tavily-mcp"
+    },
+    {
+      "id": "exa",
+      "name": "Exa",
+      "category": "web",
+      "description": {
+        "fa": "جستجوی معنایی وب و پیدا کردن منابع مشابه.",
+        "en": "Semantic web search and finding similar sources."
+      },
+      "risk": "low",
+      "inputs": [
+        {
+          "key": "token",
+          "label": {
+            "fa": "کلید API اکسا",
+            "en": "Exa API key"
+          },
+          "type": "secret",
+          "target": "header",
+          "required": false,
+          "name": "Authorization",
+          "template": "Bearer {{value}}"
+        }
+      ],
+      "note": {
+        "fa": "بدون کلید هم با محدودیت کار می‌کند؛ با کلید محدودیت بیشتر می‌شود.",
+        "en": "Works without a key with rate limits; a key raises the limits."
+      },
+      "transport": "streamable_http",
+      "url": "https://mcp.exa.ai/mcp",
+      "package": "",
+      "registry": "",
+      "requires": "",
+      "docs": "https://github.com/exa-labs/exa-mcp-server"
+    },
+    {
+      "id": "perplexity",
+      "name": "Perplexity",
+      "category": "web",
+      "description": {
+        "fa": "جستجو و پاسخ‌های مستند با Perplexity.",
+        "en": "Search and cited answers with Perplexity."
+      },
+      "risk": "low",
+      "inputs": [
+        {
+          "key": "PERPLEXITY_API_KEY",
+          "label": {
+            "fa": "کلید API پرپلکسیتی",
+            "en": "Perplexity API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "PERPLEXITY_API_KEY"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@perplexity-ai/mcp-server"
+      ],
+      "package": "@perplexity-ai/mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@perplexity-ai/mcp-server"
+    },
+    {
+      "id": "kagi",
+      "name": "Kagi Search",
+      "category": "web",
+      "description": {
+        "fa": "جستجوی بدون تبلیغ با Kagi و خلاصه‌سازی صفحه‌ها.",
+        "en": "Ad-free search and page summaries with Kagi."
+      },
+      "risk": "low",
+      "inputs": [
+        {
+          "key": "KAGI_API_KEY",
+          "label": {
+            "fa": "کلید API کاگی",
+            "en": "Kagi API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "KAGI_API_KEY"
+        }
+      ],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "kagimcp"
+      ],
+      "package": "kagimcp",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/kagimcp/"
+    },
+    {
+      "id": "searxng",
+      "name": "SearXNG",
+      "category": "web",
+      "description": {
+        "fa": "جستجو از طریق نمونه‌ی SearXNG خودت (حریم خصوصی بیشتر).",
+        "en": "Search through your own SearXNG instance (more privacy)."
+      },
+      "risk": "low",
+      "inputs": [
+        {
+          "key": "SEARXNG_URL",
+          "label": {
+            "fa": "آدرس SearXNG",
+            "en": "SearXNG URL"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "SEARXNG_URL",
+          "default": "http://localhost:8080"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-searxng"
+      ],
+      "package": "mcp-searxng",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/mcp-searxng"
+    },
+    {
+      "id": "firecrawl",
+      "name": "Firecrawl",
+      "category": "web",
+      "description": {
+        "fa": "خزیدن در سایت‌ها و استخراج داده‌ی ساختاریافته.",
+        "en": "Crawl sites and extract structured data."
+      },
+      "risk": "low",
+      "inputs": [
+        {
+          "key": "FIRECRAWL_API_KEY",
+          "label": {
+            "fa": "کلید API فایرکرال",
+            "en": "Firecrawl API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "FIRECRAWL_API_KEY"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "firecrawl-mcp"
+      ],
+      "package": "firecrawl-mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/firecrawl-mcp"
+    },
+    {
+      "id": "playwright",
+      "name": "Playwright",
+      "category": "web",
+      "description": {
+        "fa": "کنترل مرورگر: باز کردن صفحه، کلیک، پر کردن فرم و عکس‌برداری.",
+        "en": "Control a browser: open pages, click, fill forms, take screenshots."
+      },
+      "risk": "medium",
+      "inputs": [],
+      "note": {
+        "fa": "اولین اجرا ممکن است مرورگر را دانلود کند.",
+        "en": "The first run may download a browser."
+      },
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp"
+      ],
+      "package": "@playwright/mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@playwright/mcp"
+    },
+    {
+      "id": "playwright-ea",
+      "name": "Playwright (ExecuteAutomation)",
+      "category": "web",
+      "description": {
+        "fa": "خودکارسازی مرورگر و تست وب با Playwright.",
+        "en": "Browser automation and web testing with Playwright."
+      },
+      "risk": "medium",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@executeautomation/playwright-mcp-server"
+      ],
+      "package": "@executeautomation/playwright-mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@executeautomation/playwright-mcp-server"
+    },
+    {
+      "id": "browserbase",
+      "name": "Browserbase",
+      "category": "web",
+      "description": {
+        "fa": "مرورگر ابری برای خودکارسازی صفحه‌های وب.",
+        "en": "Cloud browser for automating web pages."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "BROWSERBASE_API_KEY",
+          "label": {
+            "fa": "کلید API",
+            "en": "API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "BROWSERBASE_API_KEY"
+        },
+        {
+          "key": "BROWSERBASE_PROJECT_ID",
+          "label": {
+            "fa": "شناسه‌ی پروژه",
+            "en": "Project ID"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "BROWSERBASE_PROJECT_ID"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@browserbasehq/mcp-server-browserbase"
+      ],
+      "package": "@browserbasehq/mcp-server-browserbase",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@browserbasehq/mcp-server-browserbase"
+    },
+    {
+      "id": "chrome-devtools",
+      "name": "Chrome DevTools",
+      "category": "web",
+      "description": {
+        "fa": "بررسی و عیب‌یابی صفحه‌های وب با ابزارهای توسعه‌دهنده‌ی کروم.",
+        "en": "Inspect and debug web pages with Chrome DevTools."
+      },
+      "risk": "medium",
+      "inputs": [],
+      "note": {
+        "fa": "نیاز به Google Chrome نصب‌شده دارد.",
+        "en": "Requires Google Chrome to be installed."
+      },
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp"
+      ],
+      "package": "chrome-devtools-mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/chrome-devtools-mcp"
+    },
+    {
+      "id": "apify",
+      "name": "Apify",
+      "category": "web",
+      "description": {
+        "fa": "اجرای هزاران ابزار آماده‌ی استخراج داده از سایت‌ها و شبکه‌های اجتماعی.",
+        "en": "Run thousands of ready-made scrapers for sites and social networks."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "APIFY_TOKEN",
+          "label": {
+            "fa": "توکن Apify",
+            "en": "Apify token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "APIFY_TOKEN"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@apify/actors-mcp-server"
+      ],
+      "package": "@apify/actors-mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@apify/actors-mcp-server"
+    },
+    {
+      "id": "youtube-transcript",
+      "name": "YouTube Transcript",
+      "category": "web",
+      "description": {
+        "fa": "گرفتن متن زیرنویس ویدیوهای یوتیوب.",
+        "en": "Get the transcript of YouTube videos."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@kimtaeyoon83/mcp-server-youtube-transcript"
+      ],
+      "package": "@kimtaeyoon83/mcp-server-youtube-transcript",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@kimtaeyoon83/mcp-server-youtube-transcript"
+    },
+    {
+      "id": "yt-dlp",
+      "name": "yt-dlp",
+      "category": "web",
+      "description": {
+        "fa": "دانلود ویدیو و زیرنویس از یوتیوب و سایت‌های دیگر.",
+        "en": "Download videos and subtitles from YouTube and other sites."
+      },
+      "risk": "medium",
+      "inputs": [],
+      "note": {
+        "fa": "ابزار yt-dlp باید روی سیستم نصب باشد.",
+        "en": "yt-dlp must be installed on your system."
+      },
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@kevinwatt/yt-dlp-mcp"
+      ],
+      "package": "@kevinwatt/yt-dlp-mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@kevinwatt/yt-dlp-mcp"
+    },
+    {
+      "id": "wikipedia",
+      "name": "Wikipedia",
+      "category": "web",
+      "description": {
+        "fa": "جستجو و خواندن مقاله‌های ویکی‌پدیا.",
+        "en": "Search and read Wikipedia articles."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "wikipedia-mcp"
+      ],
+      "package": "wikipedia-mcp",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/wikipedia-mcp/"
+    },
+    {
+      "id": "arxiv",
+      "name": "arXiv",
+      "category": "web",
+      "description": {
+        "fa": "جستجو و دانلود مقاله‌های علمی از arXiv.",
+        "en": "Search and download scientific papers from arXiv."
+      },
+      "risk": "low",
+      "inputs": [
+        {
+          "key": "folder",
+          "label": {
+            "fa": "پوشه‌ی ذخیره‌ی مقاله‌ها",
+            "en": "Folder to store papers"
+          },
+          "type": "path",
+          "target": "arg",
+          "required": true,
+          "help": {
+            "fa": "فقط به همین پوشه دسترسی داده می‌شود.",
+            "en": "Only this folder will be accessible."
+          }
+        }
+      ],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "arxiv-mcp-server",
+        "--storage-path",
+        "{{folder}}"
+      ],
+      "package": "arxiv-mcp-server",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/arxiv-mcp-server/"
+    },
+    {
+      "id": "paper-search",
+      "name": "Paper Search",
+      "category": "web",
+      "description": {
+        "fa": "جستجوی مقاله در arXiv، PubMed، bioRxiv و منابع دیگر.",
+        "en": "Search papers across arXiv, PubMed, bioRxiv and more."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "--with",
+        "mcp<2",
+        "paper-search-mcp"
+      ],
+      "package": "paper-search-mcp",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/paper-search-mcp/"
+    },
+    {
+      "id": "weather",
+      "name": "Weather",
+      "category": "web",
+      "description": {
+        "fa": "وضعیت و پیش‌بینی آب‌وهوا بدون نیاز به کلید.",
+        "en": "Current weather and forecasts, no key needed."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "--with",
+        "mcp<2",
+        "--from",
+        "mcp-weather-server",
+        "mcp_weather_server"
+      ],
+      "package": "mcp-weather-server",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/mcp-weather-server/"
+    },
+    {
+      "id": "google-maps",
+      "name": "Google Maps",
+      "category": "web",
+      "description": {
+        "fa": "جستجوی مکان، مسیریابی و فاصله.",
+        "en": "Place search, directions and distances."
+      },
+      "risk": "low",
+      "inputs": [
+        {
+          "key": "GOOGLE_MAPS_API_KEY",
+          "label": {
+            "fa": "کلید API نقشه‌ی گوگل",
+            "en": "Google Maps API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "GOOGLE_MAPS_API_KEY"
+        }
+      ],
+      "note": {
+        "fa": "این پکیج بایگانی شده است.",
+        "en": "This package is archived."
+      },
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-google-maps"
+      ],
+      "package": "@modelcontextprotocol/server-google-maps",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@modelcontextprotocol/server-google-maps"
+    },
+    {
+      "id": "deepwiki",
+      "name": "DeepWiki",
+      "category": "web",
+      "description": {
+        "fa": "پرسش درباره‌ی مستندات و ساختار پروژه‌های GitHub.",
+        "en": "Ask about the docs and structure of GitHub projects."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "streamable_http",
+      "url": "https://mcp.deepwiki.com/mcp",
+      "package": "",
+      "registry": "",
+      "requires": "",
+      "docs": "https://mcp.deepwiki.com/mcp"
+    },
+    {
+      "id": "ms-learn",
+      "name": "Microsoft Learn",
+      "category": "web",
+      "description": {
+        "fa": "جستجو در مستندات رسمی مایکروسافت و Azure.",
+        "en": "Search the official Microsoft and Azure docs."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "streamable_http",
+      "url": "https://learn.microsoft.com/api/mcp",
+      "package": "",
+      "registry": "",
+      "requires": "",
+      "docs": "https://learn.microsoft.com/api/mcp"
+    },
+    {
+      "id": "cloudflare-docs",
+      "name": "Cloudflare Docs",
+      "category": "web",
+      "description": {
+        "fa": "جستجو در مستندات Cloudflare.",
+        "en": "Search the Cloudflare docs."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "streamable_http",
+      "url": "https://docs.mcp.cloudflare.com/mcp",
+      "package": "",
+      "registry": "",
+      "requires": "",
+      "docs": "https://docs.mcp.cloudflare.com/mcp"
+    },
+    {
+      "id": "grep-app",
+      "name": "Grep (code search)",
+      "category": "web",
+      "description": {
+        "fa": "جستجوی کد در میلیون‌ها مخزن عمومی GitHub.",
+        "en": "Search code across millions of public GitHub repositories."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "streamable_http",
+      "url": "https://mcp.grep.app",
+      "package": "",
+      "registry": "",
+      "requires": "",
+      "docs": "https://mcp.grep.app"
+    },
+    {
+      "id": "git",
+      "name": "Git",
+      "category": "dev",
+      "description": {
+        "fa": "مشاهده‌ی وضعیت، تفاوت‌ها و تاریخچه‌ی یک مخزن Git و ثبت commit.",
+        "en": "View status, diffs and history of a Git repo, and make commits."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "repo",
+          "label": {
+            "fa": "پوشه‌ی مخزن Git",
+            "en": "Git repository folder"
+          },
+          "type": "path",
+          "target": "arg",
+          "required": true,
+          "help": {
+            "fa": "فقط به همین پوشه دسترسی داده می‌شود.",
+            "en": "Only this folder will be accessible."
+          }
+        }
+      ],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "mcp-server-git",
+        "--repository",
+        "{{repo}}"
+      ],
+      "package": "mcp-server-git",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://github.com/modelcontextprotocol/servers/tree/main/src/git"
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "category": "dev",
+      "description": {
+        "fa": "کار با مخزن‌ها، issueها و pull requestها در GitHub.",
+        "en": "Work with repos, issues and pull requests on GitHub."
+      },
+      "risk": "high",
+      "inputs": [
+        {
+          "key": "token",
+          "label": {
+            "fa": "توکن شخصی GitHub (PAT)",
+            "en": "GitHub personal access token (PAT)"
+          },
+          "type": "secret",
+          "target": "header",
+          "required": true,
+          "name": "Authorization",
+          "template": "Bearer {{value}}"
+        }
+      ],
+      "transport": "streamable_http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "package": "",
+      "registry": "",
+      "requires": "",
+      "docs": "https://github.com/github/github-mcp-server"
+    },
+    {
+      "id": "gitlab",
+      "name": "GitLab",
+      "category": "dev",
+      "description": {
+        "fa": "کار با پروژه‌ها، issueها و merge requestها در GitLab.",
+        "en": "Work with projects, issues and merge requests on GitLab."
+      },
+      "risk": "high",
+      "inputs": [
+        {
+          "key": "GITLAB_PERSONAL_ACCESS_TOKEN",
+          "label": {
+            "fa": "توکن شخصی GitLab",
+            "en": "GitLab personal access token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "GITLAB_PERSONAL_ACCESS_TOKEN"
+        },
+        {
+          "key": "GITLAB_API_URL",
+          "label": {
+            "fa": "آدرس API",
+            "en": "API URL"
+          },
+          "type": "text",
+          "target": "env",
+          "required": false,
+          "name": "GITLAB_API_URL",
+          "default": "https://gitlab.com/api/v4"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@zereight/mcp-gitlab"
+      ],
+      "package": "@zereight/mcp-gitlab",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@zereight/mcp-gitlab"
+    },
+    {
+      "id": "context7",
+      "name": "Context7",
+      "category": "dev",
+      "description": {
+        "fa": "مستندات به‌روز و نمونه‌کد کتابخانه‌ها برای هر نسخه.",
+        "en": "Up-to-date docs and code samples for libraries."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "package": "@upstash/context7-mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@upstash/context7-mcp"
+    },
+    {
+      "id": "semgrep",
+      "name": "Semgrep",
+      "category": "dev",
+      "description": {
+        "fa": "اسکن امنیتی و کیفیت کد با Semgrep.",
+        "en": "Scan code for security and quality issues with Semgrep."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "--with",
+        "mcp<2",
+        "--with",
+        "pydantic<2.12",
+        "semgrep-mcp"
+      ],
+      "package": "semgrep-mcp",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/semgrep-mcp/"
+    },
+    {
+      "id": "sentry",
+      "name": "Sentry",
+      "category": "dev",
+      "description": {
+        "fa": "بررسی خطاها و issueهای پروژه در Sentry.",
+        "en": "Inspect errors and issues of your Sentry projects."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "SENTRY_ACCESS_TOKEN",
+          "label": {
+            "fa": "توکن دسترسی Sentry",
+            "en": "Sentry access token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "SENTRY_ACCESS_TOKEN"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@sentry/mcp-server"
+      ],
+      "package": "@sentry/mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@sentry/mcp-server"
+    },
+    {
+      "id": "atlassian",
+      "name": "Jira & Confluence",
+      "category": "dev",
+      "description": {
+        "fa": "جستجو و ویرایش issueهای Jira و صفحه‌های Confluence.",
+        "en": "Search and edit Jira issues and Confluence pages."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "JIRA_URL",
+          "label": {
+            "fa": "آدرس Jira",
+            "en": "Jira URL"
+          },
+          "type": "text",
+          "target": "env",
+          "required": false,
+          "name": "JIRA_URL",
+          "help": {
+            "fa": "مثال: https://شرکت.atlassian.net",
+            "en": "Example: https://your-company.atlassian.net"
+          }
+        },
+        {
+          "key": "JIRA_USERNAME",
+          "label": {
+            "fa": "ایمیل Jira",
+            "en": "Jira email"
+          },
+          "type": "text",
+          "target": "env",
+          "required": false,
+          "name": "JIRA_USERNAME"
+        },
+        {
+          "key": "JIRA_API_TOKEN",
+          "label": {
+            "fa": "توکن API جیرا",
+            "en": "Jira API token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": false,
+          "name": "JIRA_API_TOKEN"
+        },
+        {
+          "key": "CONFLUENCE_URL",
+          "label": {
+            "fa": "آدرس Confluence",
+            "en": "Confluence URL"
+          },
+          "type": "text",
+          "target": "env",
+          "required": false,
+          "name": "CONFLUENCE_URL"
+        },
+        {
+          "key": "CONFLUENCE_USERNAME",
+          "label": {
+            "fa": "ایمیل Confluence",
+            "en": "Confluence email"
+          },
+          "type": "text",
+          "target": "env",
+          "required": false,
+          "name": "CONFLUENCE_USERNAME"
+        },
+        {
+          "key": "CONFLUENCE_API_TOKEN",
+          "label": {
+            "fa": "توکن API کانفلوئنس",
+            "en": "Confluence API token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": false,
+          "name": "CONFLUENCE_API_TOKEN"
+        }
+      ],
+      "note": {
+        "fa": "هر کدام از Jira یا Confluence را که استفاده می‌کنی پر کن.",
+        "en": "Fill in whichever of Jira or Confluence you use."
+      },
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "mcp-atlassian"
+      ],
+      "package": "mcp-atlassian",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/mcp-atlassian/"
+    },
+    {
+      "id": "linear",
+      "name": "Linear",
+      "category": "dev",
+      "description": {
+        "fa": "مدیریت issueها و پروژه‌ها در Linear.",
+        "en": "Manage issues and projects in Linear."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "token",
+          "label": {
+            "fa": "کلید API لینیر",
+            "en": "Linear API key"
+          },
+          "type": "secret",
+          "target": "header",
+          "required": true,
+          "name": "Authorization",
+          "template": "Bearer {{value}}"
+        }
+      ],
+      "transport": "streamable_http",
+      "url": "https://mcp.linear.app/mcp",
+      "package": "",
+      "registry": "",
+      "requires": "",
+      "docs": "https://linear.app/docs/mcp"
+    },
+    {
+      "id": "postman",
+      "name": "Postman",
+      "category": "dev",
+      "description": {
+        "fa": "کار با collectionها و محیط‌های Postman.",
+        "en": "Work with Postman collections and environments."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "POSTMAN_API_KEY",
+          "label": {
+            "fa": "کلید API پستمن",
+            "en": "Postman API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "POSTMAN_API_KEY"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@postman/postman-mcp-server"
+      ],
+      "package": "@postman/postman-mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@postman/postman-mcp-server"
+    },
+    {
+      "id": "code-runner",
+      "name": "Code Runner",
+      "category": "dev",
+      "description": {
+        "fa": "اجرای قطعه‌کد در زبان‌های مختلف روی سیستم تو.",
+        "en": "Run code snippets in many languages on your machine."
+      },
+      "risk": "high",
+      "inputs": [],
+      "note": {
+        "fa": "کد روی رایانه‌ی خودت اجرا می‌شود؛ هر بار تأیید بگیر.",
+        "en": "Code runs on your own computer; keep approval on."
+      },
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-server-code-runner"
+      ],
+      "package": "mcp-server-code-runner",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/mcp-server-code-runner"
+    },
+    {
+      "id": "e2b",
+      "name": "E2B Sandbox",
+      "category": "dev",
+      "description": {
+        "fa": "اجرای امن کد در سندباکس ابری E2B.",
+        "en": "Run code safely in an E2B cloud sandbox."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "E2B_API_KEY",
+          "label": {
+            "fa": "کلید API E2B",
+            "en": "E2B API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "E2B_API_KEY"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@e2b/mcp-server"
+      ],
+      "package": "@e2b/mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@e2b/mcp-server"
+    },
+    {
+      "id": "figma-api",
+      "name": "Figma (API)",
+      "category": "dev",
+      "description": {
+        "fa": "خواندن فایل‌های Figma از طریق API برای تبدیل به کد.",
+        "en": "Read Figma files through the API and turn designs into code."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "FIGMA_API_KEY",
+          "label": {
+            "fa": "توکن دسترسی Figma",
+            "en": "Figma access token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "FIGMA_API_KEY"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "figma-developer-mcp",
+        "--stdio"
+      ],
+      "package": "figma-developer-mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/figma-developer-mcp"
+    },
+    {
+      "id": "huggingface",
+      "name": "Hugging Face",
+      "category": "dev",
+      "description": {
+        "fa": "جستجوی مدل‌ها، دیتاست‌ها و مقاله‌ها در Hugging Face.",
+        "en": "Search models, datasets and papers on Hugging Face."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "token",
+          "label": {
+            "fa": "توکن Hugging Face",
+            "en": "Hugging Face token"
+          },
+          "type": "secret",
+          "target": "header",
+          "required": false,
+          "name": "Authorization",
+          "template": "Bearer {{value}}"
+        }
+      ],
+      "transport": "streamable_http",
+      "url": "https://huggingface.co/mcp",
+      "package": "",
+      "registry": "",
+      "requires": "",
+      "docs": "https://huggingface.co/settings/mcp"
+    },
+    {
+      "id": "n8n",
+      "name": "n8n Nodes",
+      "category": "dev",
+      "description": {
+        "fa": "مستندات و اطلاعات نودهای n8n برای ساخت workflow.",
+        "en": "Docs and details of n8n nodes for building workflows."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "n8n-mcp"
+      ],
+      "package": "n8n-mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/n8n-mcp",
+      "env_static": {
+        "MCP_MODE": "stdio",
+        "LOG_LEVEL": "error",
+        "DISABLE_CONSOLE_OUTPUT": "true"
+      }
+    },
+    {
+      "id": "antv-chart",
+      "name": "AntV Charts",
+      "category": "dev",
+      "description": {
+        "fa": "ساخت نمودارهای زیبا (ستونی، خطی، دایره‌ای و…).",
+        "en": "Generate charts (bar, line, pie…)."
+      },
+      "risk": "low",
+      "inputs": [],
+      "note": {
+        "fa": "داده‌ی نمودار برای ساخته‌شدن به سرویس AntV فرستاده می‌شود.",
+        "en": "Chart data is sent to the AntV service to render."
+      },
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@antv/mcp-server-chart"
+      ],
+      "package": "@antv/mcp-server-chart",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@antv/mcp-server-chart"
+    },
+    {
+      "id": "aws-docs",
+      "name": "AWS Documentation",
+      "category": "dev",
+      "description": {
+        "fa": "جستجو و خواندن مستندات رسمی AWS.",
+        "en": "Search and read the official AWS docs."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "awslabs.aws-documentation-mcp-server@latest"
+      ],
+      "package": "awslabs.aws-documentation-mcp-server",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/awslabs.aws-documentation-mcp-server/"
+    },
+    {
+      "id": "docker",
+      "name": "Docker",
+      "category": "cloud",
+      "description": {
+        "fa": "مدیریت کانتینرها، ایمیج‌ها و شبکه‌های Docker.",
+        "en": "Manage Docker containers, images and networks."
+      },
+      "risk": "high",
+      "inputs": [],
+      "note": {
+        "fa": "Docker Desktop باید در حال اجرا باشد.",
+        "en": "Docker Desktop must be running."
+      },
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "--from",
+        "mcp-server-docker",
+        "mcp-server-docker"
+      ],
+      "package": "mcp-server-docker",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/mcp-server-docker/"
+    },
+    {
+      "id": "azure",
+      "name": "Azure",
+      "category": "cloud",
+      "description": {
+        "fa": "مدیریت منابع و سرویس‌های Azure.",
+        "en": "Manage Azure resources and services."
+      },
+      "risk": "high",
+      "inputs": [],
+      "note": {
+        "fa": "ابتدا با Azure CLI وارد حساب شو (az login).",
+        "en": "Sign in first with the Azure CLI (az login)."
+      },
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@azure/mcp",
+        "server",
+        "start"
+      ],
+      "package": "@azure/mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@azure/mcp"
+    },
+    {
+      "id": "sqlite",
+      "name": "SQLite",
+      "category": "data",
+      "description": {
+        "fa": "اجرای کوئری روی فایل پایگاه‌داده‌ی SQLite.",
+        "en": "Run queries on a SQLite database file."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "file",
+          "label": {
+            "fa": "مسیر فایل SQLite",
+            "en": "SQLite file path"
+          },
+          "type": "path",
+          "target": "arg",
+          "required": true
+        }
+      ],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "mcp-server-sqlite",
+        "--db-path",
+        "{{file}}"
+      ],
+      "package": "mcp-server-sqlite",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/mcp-server-sqlite/"
+    },
+    {
+      "id": "postgres",
+      "name": "PostgreSQL",
+      "category": "data",
+      "description": {
+        "fa": "بررسی ساختار و اجرای کوئری روی PostgreSQL (پیش‌فرض: فقط‌خواندنی).",
+        "en": "Inspect schema and query PostgreSQL (read-only by default)."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "DATABASE_URI",
+          "label": {
+            "fa": "آدرس اتصال",
+            "en": "Connection URI"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "DATABASE_URI",
+          "help": {
+            "fa": "مثال: postgresql://user:pass@localhost:5432/db",
+            "en": "Example: postgresql://user:pass@localhost:5432/db"
+          }
+        }
+      ],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "postgres-mcp",
+        "--access-mode=restricted"
+      ],
+      "package": "postgres-mcp",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/postgres-mcp/"
+    },
+    {
+      "id": "mysql",
+      "name": "MySQL",
+      "category": "data",
+      "description": {
+        "fa": "کوئری روی پایگاه‌داده‌ی MySQL.",
+        "en": "Query a MySQL database."
+      },
+      "risk": "high",
+      "inputs": [
+        {
+          "key": "MYSQL_HOST",
+          "label": {
+            "fa": "میزبان",
+            "en": "Host"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "MYSQL_HOST",
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "MYSQL_PORT",
+          "label": {
+            "fa": "پورت",
+            "en": "Port"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "MYSQL_PORT",
+          "default": "3306"
+        },
+        {
+          "key": "MYSQL_USER",
+          "label": {
+            "fa": "نام کاربری",
+            "en": "Username"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "MYSQL_USER"
+        },
+        {
+          "key": "MYSQL_PASS",
+          "label": {
+            "fa": "گذرواژه",
+            "en": "Password"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "MYSQL_PASS"
+        },
+        {
+          "key": "MYSQL_DB",
+          "label": {
+            "fa": "نام پایگاه‌داده",
+            "en": "Database name"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "MYSQL_DB"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@benborla29/mcp-server-mysql"
+      ],
+      "package": "@benborla29/mcp-server-mysql",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@benborla29/mcp-server-mysql"
+    },
+    {
+      "id": "mongodb",
+      "name": "MongoDB",
+      "category": "data",
+      "description": {
+        "fa": "کار با مجموعه‌ها و اسناد MongoDB (فقط‌خواندنی).",
+        "en": "Work with MongoDB collections and documents (read-only)."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "MDB_MCP_CONNECTION_STRING",
+          "label": {
+            "fa": "رشته‌ی اتصال",
+            "en": "Connection string"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "MDB_MCP_CONNECTION_STRING"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mongodb-mcp-server",
+        "--readOnly"
+      ],
+      "package": "mongodb-mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/mongodb-mcp-server"
+    },
+    {
+      "id": "redis",
+      "name": "Redis",
+      "category": "data",
+      "description": {
+        "fa": "خواندن و نوشتن داده در Redis.",
+        "en": "Read and write data in Redis."
+      },
+      "risk": "high",
+      "inputs": [
+        {
+          "key": "REDIS_HOST",
+          "label": {
+            "fa": "میزبان",
+            "en": "Host"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "REDIS_HOST",
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "REDIS_PORT",
+          "label": {
+            "fa": "پورت",
+            "en": "Port"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "REDIS_PORT",
+          "default": "6379"
+        },
+        {
+          "key": "REDIS_PWD",
+          "label": {
+            "fa": "گذرواژه",
+            "en": "Password"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": false,
+          "name": "REDIS_PWD"
+        }
+      ],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "--from",
+        "redis-mcp-server@latest",
+        "redis-mcp-server"
+      ],
+      "package": "redis-mcp-server",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/redis-mcp-server/"
+    },
+    {
+      "id": "duckdb",
+      "name": "DuckDB / MotherDuck",
+      "category": "data",
+      "description": {
+        "fa": "تحلیل داده با SQL روی فایل‌های DuckDB، CSV و Parquet (فقط‌خواندنی).",
+        "en": "Analyze data with SQL over DuckDB, CSV and Parquet files (read-only)."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "file",
+          "label": {
+            "fa": "مسیر فایل DuckDB",
+            "en": "DuckDB file path"
+          },
+          "type": "path",
+          "target": "arg",
+          "required": true,
+          "help": {
+            "fa": "برای دیتابیس موقت در حافظه بنویس: :memory:",
+            "en": "For a temporary in-memory database type: :memory:"
+          }
+        }
+      ],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "mcp-server-motherduck",
+        "--db-path",
+        "{{file}}"
+      ],
+      "package": "mcp-server-motherduck",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/mcp-server-motherduck/"
+    },
+    {
+      "id": "clickhouse",
+      "name": "ClickHouse",
+      "category": "data",
+      "description": {
+        "fa": "کوئری تحلیلی روی ClickHouse.",
+        "en": "Analytical queries on ClickHouse."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "CLICKHOUSE_HOST",
+          "label": {
+            "fa": "میزبان",
+            "en": "Host"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "CLICKHOUSE_HOST"
+        },
+        {
+          "key": "CLICKHOUSE_USER",
+          "label": {
+            "fa": "نام کاربری",
+            "en": "Username"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "CLICKHOUSE_USER"
+        },
+        {
+          "key": "CLICKHOUSE_PASSWORD",
+          "label": {
+            "fa": "گذرواژه",
+            "en": "Password"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "CLICKHOUSE_PASSWORD"
+        }
+      ],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "mcp-clickhouse"
+      ],
+      "package": "mcp-clickhouse",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/mcp-clickhouse/"
+    },
+    {
+      "id": "neo4j",
+      "name": "Neo4j",
+      "category": "data",
+      "description": {
+        "fa": "کوئری Cypher روی پایگاه‌داده‌ی گراف Neo4j.",
+        "en": "Run Cypher queries on a Neo4j graph database."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "NEO4J_URI",
+          "label": {
+            "fa": "آدرس",
+            "en": "URI"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "NEO4J_URI",
+          "default": "bolt://localhost:7687"
+        },
+        {
+          "key": "NEO4J_USERNAME",
+          "label": {
+            "fa": "نام کاربری",
+            "en": "Username"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "NEO4J_USERNAME",
+          "default": "neo4j"
+        },
+        {
+          "key": "NEO4J_PASSWORD",
+          "label": {
+            "fa": "گذرواژه",
+            "en": "Password"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "NEO4J_PASSWORD"
+        }
+      ],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "mcp-neo4j-cypher"
+      ],
+      "package": "mcp-neo4j-cypher",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/mcp-neo4j-cypher/"
+    },
+    {
+      "id": "qdrant",
+      "name": "Qdrant",
+      "category": "data",
+      "description": {
+        "fa": "ذخیره و جستجوی معنایی در پایگاه‌داده‌ی برداری Qdrant.",
+        "en": "Store and semantically search in the Qdrant vector database."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "QDRANT_LOCAL_PATH",
+          "label": {
+            "fa": "پوشه‌ی ذخیره‌ی محلی",
+            "en": "Local storage folder"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "QDRANT_LOCAL_PATH"
+        },
+        {
+          "key": "COLLECTION_NAME",
+          "label": {
+            "fa": "نام مجموعه",
+            "en": "Collection name"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "COLLECTION_NAME",
+          "default": "vision-memory"
+        }
+      ],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "mcp-server-qdrant"
+      ],
+      "package": "mcp-server-qdrant",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/mcp-server-qdrant/"
+    },
+    {
+      "id": "chroma",
+      "name": "Chroma",
+      "category": "data",
+      "description": {
+        "fa": "پایگاه‌داده‌ی برداری محلی Chroma برای جستجوی معنایی.",
+        "en": "Local Chroma vector database for semantic search."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "folder",
+          "label": {
+            "fa": "پوشه‌ی داده",
+            "en": "Data folder"
+          },
+          "type": "path",
+          "target": "arg",
+          "required": true,
+          "help": {
+            "fa": "فقط به همین پوشه دسترسی داده می‌شود.",
+            "en": "Only this folder will be accessible."
+          }
+        }
+      ],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "--with",
+        "mcp<2",
+        "--with",
+        "pydantic<2.12",
+        "chroma-mcp",
+        "--client-type",
+        "persistent",
+        "--data-dir",
+        "{{folder}}"
+      ],
+      "package": "chroma-mcp",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/chroma-mcp/"
+    },
+    {
+      "id": "pinecone",
+      "name": "Pinecone",
+      "category": "data",
+      "description": {
+        "fa": "کار با ایندکس‌های برداری Pinecone و مستندات آن.",
+        "en": "Work with Pinecone vector indexes and docs."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "PINECONE_API_KEY",
+          "label": {
+            "fa": "کلید API پاین‌کون",
+            "en": "Pinecone API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "PINECONE_API_KEY"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@pinecone-database/mcp"
+      ],
+      "package": "@pinecone-database/mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@pinecone-database/mcp"
+    },
+    {
+      "id": "airtable",
+      "name": "Airtable",
+      "category": "data",
+      "description": {
+        "fa": "خواندن و ویرایش جدول‌های Airtable.",
+        "en": "Read and edit Airtable tables."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "AIRTABLE_API_KEY",
+          "label": {
+            "fa": "توکن شخصی Airtable",
+            "en": "Airtable personal access token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "AIRTABLE_API_KEY"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "airtable-mcp-server"
+      ],
+      "package": "airtable-mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/airtable-mcp-server"
+    },
+    {
+      "id": "notion",
+      "name": "Notion",
+      "category": "productivity",
+      "description": {
+        "fa": "جستجو و ویرایش صفحه‌ها و دیتابیس‌های Notion.",
+        "en": "Search and edit Notion pages and databases."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "NOTION_TOKEN",
+          "label": {
+            "fa": "توکن Integration",
+            "en": "Integration token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "NOTION_TOKEN"
+        }
+      ],
+      "note": {
+        "fa": "صفحه‌ها را باید با Integration به اشتراک بگذاری.",
+        "en": "You must share pages with the integration."
+      },
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@notionhq/notion-mcp-server"
+      ],
+      "package": "@notionhq/notion-mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@notionhq/notion-mcp-server"
+    },
+    {
+      "id": "todoist",
+      "name": "Todoist",
+      "category": "productivity",
+      "description": {
+        "fa": "مدیریت کارها و پروژه‌ها در Todoist.",
+        "en": "Manage tasks and projects in Todoist."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "TODOIST_API_TOKEN",
+          "label": {
+            "fa": "توکن API",
+            "en": "API token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "TODOIST_API_TOKEN"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@abhiz123/todoist-mcp-server"
+      ],
+      "package": "@abhiz123/todoist-mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@abhiz123/todoist-mcp-server"
+    },
+    {
+      "id": "trello",
+      "name": "Trello",
+      "category": "productivity",
+      "description": {
+        "fa": "مدیریت بردها، لیست‌ها و کارت‌های Trello.",
+        "en": "Manage Trello boards, lists and cards."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "TRELLO_API_KEY",
+          "label": {
+            "fa": "کلید API",
+            "en": "API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "TRELLO_API_KEY"
+        },
+        {
+          "key": "TRELLO_TOKEN",
+          "label": {
+            "fa": "توکن",
+            "en": "Token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "TRELLO_TOKEN"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@delorenj/mcp-server-trello"
+      ],
+      "package": "@delorenj/mcp-server-trello",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@delorenj/mcp-server-trello"
+    },
+    {
+      "id": "asana",
+      "name": "Asana",
+      "category": "productivity",
+      "description": {
+        "fa": "مدیریت پروژه‌ها و کارها در Asana.",
+        "en": "Manage projects and tasks in Asana."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "ASANA_ACCESS_TOKEN",
+          "label": {
+            "fa": "توکن دسترسی شخصی",
+            "en": "Personal access token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "ASANA_ACCESS_TOKEN"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@roychri/mcp-server-asana"
+      ],
+      "package": "@roychri/mcp-server-asana",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@roychri/mcp-server-asana"
+    },
+    {
+      "id": "clickup",
+      "name": "ClickUp",
+      "category": "productivity",
+      "description": {
+        "fa": "مدیریت کارها و فضاهای کاری در ClickUp.",
+        "en": "Manage tasks and workspaces in ClickUp."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "CLICKUP_API_KEY",
+          "label": {
+            "fa": "کلید API",
+            "en": "API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "CLICKUP_API_KEY"
+        },
+        {
+          "key": "CLICKUP_TEAM_ID",
+          "label": {
+            "fa": "شناسه‌ی Workspace",
+            "en": "Workspace ID"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "CLICKUP_TEAM_ID"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@taazkareem/clickup-mcp-server"
+      ],
+      "package": "@taazkareem/clickup-mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@taazkareem/clickup-mcp-server"
+    },
+    {
+      "id": "google-calendar",
+      "name": "Google Calendar",
+      "category": "productivity",
+      "description": {
+        "fa": "مشاهده و ساخت رویداد در تقویم گوگل.",
+        "en": "View and create events in Google Calendar."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "GOOGLE_OAUTH_CREDENTIALS",
+          "label": {
+            "fa": "مسیر فایل credentials.json",
+            "en": "Path to credentials.json"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "GOOGLE_OAUTH_CREDENTIALS"
+        }
+      ],
+      "note": {
+        "fa": "باید یک OAuth client در Google Cloud بسازی (نوع Desktop) و فایل JSON آن را اینجا بدهی.",
+        "en": "Create an OAuth client (Desktop type) in Google Cloud and give its JSON file here."
+      },
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cocal/google-calendar-mcp"
+      ],
+      "package": "@cocal/google-calendar-mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@cocal/google-calendar-mcp"
+    },
+    {
+      "id": "google-workspace",
+      "name": "Google Workspace",
+      "category": "productivity",
+      "description": {
+        "fa": "Gmail، Drive، Docs، Sheets، Calendar و بیشتر در یک سرور.",
+        "en": "Gmail, Drive, Docs, Sheets, Calendar and more in one server."
+      },
+      "risk": "high",
+      "inputs": [
+        {
+          "key": "GOOGLE_OAUTH_CLIENT_ID",
+          "label": {
+            "fa": "شناسه‌ی OAuth Client",
+            "en": "OAuth client ID"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "GOOGLE_OAUTH_CLIENT_ID"
+        },
+        {
+          "key": "GOOGLE_OAUTH_CLIENT_SECRET",
+          "label": {
+            "fa": "رمز OAuth Client",
+            "en": "OAuth client secret"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "GOOGLE_OAUTH_CLIENT_SECRET"
+        }
+      ],
+      "note": {
+        "fa": "اولین بار باید در مرورگر وارد حساب گوگل شوی.",
+        "en": "The first time you must sign in to Google in your browser."
+      },
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "workspace-mcp"
+      ],
+      "package": "workspace-mcp",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/workspace-mcp/"
+    },
+    {
+      "id": "time",
+      "name": "Time",
+      "category": "productivity",
+      "description": {
+        "fa": "ساعت و تاریخ دقیق و تبدیل منطقه‌ی زمانی.",
+        "en": "Accurate date and time, and timezone conversion."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "mcp-server-time"
+      ],
+      "package": "mcp-server-time",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://github.com/modelcontextprotocol/servers/tree/main/src/time"
+    },
+    {
+      "id": "calculator",
+      "name": "Calculator",
+      "category": "productivity",
+      "description": {
+        "fa": "محاسبات دقیق ریاضی.",
+        "en": "Precise math calculations."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "mcp-server-calculator"
+      ],
+      "package": "mcp-server-calculator",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/mcp-server-calculator/"
+    },
+    {
+      "id": "slack",
+      "name": "Slack",
+      "category": "comms",
+      "description": {
+        "fa": "خواندن کانال‌ها و ارسال پیام در Slack.",
+        "en": "Read channels and send messages in Slack."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "SLACK_BOT_TOKEN",
+          "label": {
+            "fa": "توکن ربات (xoxb-…)",
+            "en": "Bot token (xoxb-…)"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "SLACK_BOT_TOKEN"
+        },
+        {
+          "key": "SLACK_TEAM_ID",
+          "label": {
+            "fa": "شناسه‌ی Workspace",
+            "en": "Workspace ID"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "SLACK_TEAM_ID"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@zencoderai/slack-mcp-server"
+      ],
+      "package": "@zencoderai/slack-mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@zencoderai/slack-mcp-server"
+    },
+    {
+      "id": "discord",
+      "name": "Discord",
+      "category": "comms",
+      "description": {
+        "fa": "خواندن و ارسال پیام در سرورهای Discord.",
+        "en": "Read and send messages in Discord servers."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "DISCORD_TOKEN",
+          "label": {
+            "fa": "توکن ربات",
+            "en": "Bot token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "DISCORD_TOKEN"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-discord"
+      ],
+      "package": "mcp-discord",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/mcp-discord"
+    },
+    {
+      "id": "gmail",
+      "name": "Gmail",
+      "category": "comms",
+      "description": {
+        "fa": "جستجو، خواندن و ارسال ایمیل در Gmail.",
+        "en": "Search, read and send email in Gmail."
+      },
+      "risk": "high",
+      "inputs": [],
+      "note": {
+        "fa": "اولین بار باید طبق راهنمای پکیج وارد حساب گوگل شوی (OAuth).",
+        "en": "On first use sign in to Google following the package guide (OAuth)."
+      },
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@gongrzhe/server-gmail-autoauth-mcp"
+      ],
+      "package": "@gongrzhe/server-gmail-autoauth-mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@gongrzhe/server-gmail-autoauth-mcp"
+    },
+    {
+      "id": "resend",
+      "name": "Resend (email)",
+      "category": "comms",
+      "description": {
+        "fa": "ارسال ایمیل با سرویس Resend.",
+        "en": "Send email with the Resend service."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "RESEND_API_KEY",
+          "label": {
+            "fa": "کلید API رسند",
+            "en": "Resend API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "RESEND_API_KEY"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "resend-mcp"
+      ],
+      "package": "resend-mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/resend-mcp"
+    },
+    {
+      "id": "stripe",
+      "name": "Stripe",
+      "category": "business",
+      "description": {
+        "fa": "مشاهده‌ی مشتری‌ها، پرداخت‌ها و ساخت لینک پرداخت در Stripe.",
+        "en": "View customers, payments and create payment links in Stripe."
+      },
+      "risk": "high",
+      "inputs": [
+        {
+          "key": "token",
+          "label": {
+            "fa": "کلید محدود Stripe (rk_…)",
+            "en": "Stripe restricted key (rk_…)"
+          },
+          "type": "secret",
+          "target": "header",
+          "required": true,
+          "name": "Authorization",
+          "template": "Bearer {{value}}",
+          "help": {
+            "fa": "از کلید محدودشده استفاده کن، نه کلید اصلی.",
+            "en": "Use a restricted key, not your main secret key."
+          }
+        }
+      ],
+      "transport": "streamable_http",
+      "url": "https://mcp.stripe.com",
+      "package": "",
+      "registry": "",
+      "requires": "",
+      "docs": "https://docs.stripe.com/mcp"
+    },
+    {
+      "id": "paypal",
+      "name": "PayPal",
+      "category": "business",
+      "description": {
+        "fa": "کار با فاکتور، پرداخت و سفارش‌ها در PayPal.",
+        "en": "Work with invoices, payments and orders in PayPal."
+      },
+      "risk": "high",
+      "inputs": [
+        {
+          "key": "PAYPAL_ACCESS_TOKEN",
+          "label": {
+            "fa": "توکن دسترسی",
+            "en": "Access token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "PAYPAL_ACCESS_TOKEN"
+        },
+        {
+          "key": "PAYPAL_ENVIRONMENT",
+          "label": {
+            "fa": "محیط (SANDBOX یا PRODUCTION)",
+            "en": "Environment (SANDBOX or PRODUCTION)"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "PAYPAL_ENVIRONMENT",
+          "default": "SANDBOX"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@paypal/mcp",
+        "--tools=all"
+      ],
+      "package": "@paypal/mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@paypal/mcp"
+    },
+    {
+      "id": "hubspot",
+      "name": "HubSpot",
+      "category": "business",
+      "description": {
+        "fa": "مدیریت مخاطبان، معامله‌ها و شرکت‌ها در HubSpot.",
+        "en": "Manage contacts, deals and companies in HubSpot."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "PRIVATE_APP_ACCESS_TOKEN",
+          "label": {
+            "fa": "توکن Private App",
+            "en": "Private app token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "PRIVATE_APP_ACCESS_TOKEN"
+        }
+      ],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@hubspot/mcp-server"
+      ],
+      "package": "@hubspot/mcp-server",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@hubspot/mcp-server"
+    },
+    {
+      "id": "coingecko",
+      "name": "CoinGecko",
+      "category": "business",
+      "description": {
+        "fa": "قیمت و اطلاعات بازار ارزهای دیجیتال.",
+        "en": "Crypto prices and market data."
+      },
+      "risk": "low",
+      "inputs": [
+        {
+          "key": "COINGECKO_PRO_API_KEY",
+          "label": {
+            "fa": "کلید API نسخه‌ی Pro",
+            "en": "Pro API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": false,
+          "name": "COINGECKO_PRO_API_KEY"
+        }
+      ],
+      "note": {
+        "fa": "بدون کلید هم با محدودیت کار می‌کند.",
+        "en": "Works with limits even without a key."
+      },
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@coingecko/coingecko-mcp"
+      ],
+      "package": "@coingecko/coingecko-mcp",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@coingecko/coingecko-mcp"
+    },
+    {
+      "id": "memory",
+      "name": "Knowledge Graph Memory",
+      "category": "ai",
+      "description": {
+        "fa": "حافظه‌ی گراف دانش برای نگهداری موجودیت‌ها و رابطه‌ها.",
+        "en": "Knowledge-graph memory for entities and relations."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "package": "@modelcontextprotocol/server-memory",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://github.com/modelcontextprotocol/servers/tree/main/src/memory"
+    },
+    {
+      "id": "basic-memory",
+      "name": "Basic Memory",
+      "category": "ai",
+      "description": {
+        "fa": "پایگاه دانش محلی روی فایل‌های Markdown که بین گفتگوها می‌ماند.",
+        "en": "Local knowledge base in Markdown files that persists across chats."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "basic-memory",
+        "mcp"
+      ],
+      "package": "basic-memory",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/basic-memory/"
+    },
+    {
+      "id": "sequential-thinking",
+      "name": "Sequential Thinking",
+      "category": "ai",
+      "description": {
+        "fa": "کمک به حل مسئله‌های پیچیده با تفکر مرحله‌به‌مرحله.",
+        "en": "Step-by-step thinking for complex problems."
+      },
+      "risk": "low",
+      "inputs": [],
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "package": "@modelcontextprotocol/server-sequential-thinking",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking"
+    },
+    {
+      "id": "figma",
+      "name": "Figma (Dev Mode)",
+      "category": "creative",
+      "description": {
+        "fa": "خواندن طراحی‌های Figma برای تبدیل به کد.",
+        "en": "Read Figma designs to turn them into code."
+      },
+      "risk": "low",
+      "inputs": [],
+      "note": {
+        "fa": "برنامه‌ی دسکتاپ Figma باید باز باشد و Dev Mode MCP Server در آن روشن شود.",
+        "en": "The Figma desktop app must be open with the Dev Mode MCP Server turned on."
+      },
+      "transport": "streamable_http",
+      "url": "http://127.0.0.1:3845/mcp",
+      "package": "",
+      "registry": "",
+      "requires": "",
+      "docs": "https://help.figma.com/hc/en-us/articles/32132100833559"
+    },
+    {
+      "id": "blender",
+      "name": "Blender",
+      "category": "creative",
+      "description": {
+        "fa": "ساخت و ویرایش صحنه‌های سه‌بعدی در Blender.",
+        "en": "Create and edit 3D scenes in Blender."
+      },
+      "risk": "medium",
+      "inputs": [],
+      "note": {
+        "fa": "افزونه‌ی BlenderMCP باید در Blender نصب و متصل باشد.",
+        "en": "The BlenderMCP add-on must be installed and connected in Blender."
+      },
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "blender-mcp"
+      ],
+      "package": "blender-mcp",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/blender-mcp/"
+    },
+    {
+      "id": "elevenlabs",
+      "name": "ElevenLabs",
+      "category": "creative",
+      "description": {
+        "fa": "تبدیل متن به گفتار و ساخت صدا با ElevenLabs.",
+        "en": "Text-to-speech and voice generation with ElevenLabs."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "ELEVENLABS_API_KEY",
+          "label": {
+            "fa": "کلید API",
+            "en": "API key"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "ELEVENLABS_API_KEY"
+        }
+      ],
+      "note": {
+        "fa": "استفاده از اعتبار حساب ElevenLabs را مصرف می‌کند.",
+        "en": "Uses your ElevenLabs account credits."
+      },
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "elevenlabs-mcp"
+      ],
+      "package": "elevenlabs-mcp",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/elevenlabs-mcp/"
+    },
+    {
+      "id": "desktop-commander",
+      "name": "Desktop Commander",
+      "category": "system",
+      "description": {
+        "fa": "اجرای دستور ترمینال و مدیریت فایل‌ها و پردازش‌ها روی سیستم.",
+        "en": "Run terminal commands and manage files and processes on your system."
+      },
+      "risk": "high",
+      "inputs": [],
+      "note": {
+        "fa": "دسترسی گسترده به سیستم دارد؛ فقط در صورت نیاز فعالش کن.",
+        "en": "Has broad access to your system; enable it only when needed."
+      },
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@wonderwhy-er/desktop-commander"
+      ],
+      "package": "@wonderwhy-er/desktop-commander",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/@wonderwhy-er/desktop-commander"
+    },
+    {
+      "id": "commands",
+      "name": "Shell Commands",
+      "category": "system",
+      "description": {
+        "fa": "اجرای دستورهای شل روی رایانه.",
+        "en": "Run shell commands on your computer."
+      },
+      "risk": "high",
+      "inputs": [],
+      "note": {
+        "fa": "هر دستور را قبل از اجرا بررسی کن.",
+        "en": "Review every command before it runs."
+      },
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-server-commands"
+      ],
+      "package": "mcp-server-commands",
+      "registry": "npm",
+      "requires": "node",
+      "docs": "https://www.npmjs.com/package/mcp-server-commands"
+    },
+    {
+      "id": "windows-mcp",
+      "name": "Windows Control",
+      "category": "system",
+      "description": {
+        "fa": "کنترل ویندوز: باز کردن برنامه‌ها، کلیک، تایپ و عکس از صفحه.",
+        "en": "Control Windows: open apps, click, type and take screenshots."
+      },
+      "risk": "high",
+      "inputs": [],
+      "note": {
+        "fa": "فقط برای ویندوز است و کنترل کامل صفحه می‌دهد؛ تأیید را روشن نگه دار.",
+        "en": "Windows only and gives full control of the screen; keep approval on."
+      },
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "windows-mcp"
+      ],
+      "package": "windows-mcp",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/windows-mcp/"
+    },
+    {
+      "id": "home-assistant",
+      "name": "Home Assistant",
+      "category": "system",
+      "description": {
+        "fa": "کنترل خانه‌ی هوشمند با Home Assistant.",
+        "en": "Control your smart home with Home Assistant."
+      },
+      "risk": "medium",
+      "inputs": [
+        {
+          "key": "HA_URL",
+          "label": {
+            "fa": "آدرس Home Assistant",
+            "en": "Home Assistant URL"
+          },
+          "type": "text",
+          "target": "env",
+          "required": true,
+          "name": "HA_URL",
+          "default": "http://homeassistant.local:8123"
+        },
+        {
+          "key": "HA_TOKEN",
+          "label": {
+            "fa": "توکن دسترسی بلندمدت",
+            "en": "Long-lived access token"
+          },
+          "type": "secret",
+          "target": "env",
+          "required": true,
+          "name": "HA_TOKEN"
+        }
+      ],
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.13",
+        "hass-mcp"
+      ],
+      "package": "hass-mcp",
+      "registry": "pypi",
+      "requires": "uv",
+      "docs": "https://pypi.org/project/hass-mcp/"
+    }
+  ]
+}

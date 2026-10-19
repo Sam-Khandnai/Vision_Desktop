@@ -1,0 +1,488 @@
+[
+ {
+  "id": "pandoc",
+  "ok": true,
+  "tools": 1,
+  "secs": 43
+ },
+ {
+  "id": "word",
+  "ok": true,
+  "tools": 54,
+  "secs": 54
+ },
+ {
+  "id": "powerpoint",
+  "ok": true,
+  "tools": 37,
+  "secs": 68
+ },
+ {
+  "id": "excel",
+  "ok": true,
+  "tools": 7,
+  "secs": 132
+ },
+ {
+  "id": "filesystem",
+  "ok": true,
+  "tools": 14,
+  "secs": 133
+ },
+ {
+  "id": "obsidian",
+  "ok": true,
+  "tools": 15,
+  "secs": 23
+ },
+ {
+  "id": "fetch",
+  "ok": true,
+  "tools": 1,
+  "secs": 21
+ },
+ {
+  "id": "duckduckgo",
+  "ok": true,
+  "tools": 3,
+  "secs": 11
+ },
+ {
+  "id": "markitdown",
+  "ok": true,
+  "tools": 1,
+  "secs": 176
+ },
+ {
+  "id": "pdf-reader",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 119
+ },
+ {
+  "id": "kagi",
+  "ok": true,
+  "tools": 2,
+  "secs": 21
+ },
+ {
+  "id": "tavily",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 119
+ },
+ {
+  "id": "perplexity",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 118
+ },
+ {
+  "id": "searxng",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 118
+ },
+ {
+  "id": "ripgrep",
+  "ok": false,
+  "error": "TimeoutError",
+  "secs": 242
+ },
+ {
+  "id": "firecrawl",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 117
+ },
+ {
+  "id": "brave-search",
+  "ok": false,
+  "error": "TimeoutError",
+  "secs": 242
+ },
+ {
+  "id": "playwright",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 118
+ },
+ {
+  "id": "playwright-ea",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 118
+ },
+ {
+  "id": "browserbase",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 117
+ },
+ {
+  "id": "chrome-devtools",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 118
+ },
+ {
+  "id": "apify",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 117
+ },
+ {
+  "id": "wikipedia",
+  "ok": true,
+  "tools": 22,
+  "secs": 25
+ },
+ {
+  "id": "youtube-transcript",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 117
+ },
+ {
+  "id": "arxiv",
+  "ok": true,
+  "tools": 19,
+  "secs": 22
+ },
+ {
+  "id": "paper-search",
+  "ok": true,
+  "tools": 57,
+  "secs": 19
+ },
+ {
+  "id": "weather",
+  "ok": true,
+  "tools": 8,
+  "secs": 22
+ },
+ {
+  "id": "yt-dlp",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 117
+ },
+ {
+  "id": "git",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 17
+ },
+ {
+  "id": "google-maps",
+  "ok": true,
+  "tools": 7,
+  "secs": 26
+ },
+ {
+  "id": "gitlab",
+  "ok": true,
+  "tools": 39,
+  "secs": 35
+ },
+ {
+  "id": "context7",
+  "ok": true,
+  "tools": 2,
+  "secs": 37
+ },
+ {
+  "id": "atlassian",
+  "ok": true,
+  "tools": 98,
+  "secs": 90
+ },
+ {
+  "id": "code-runner",
+  "ok": true,
+  "tools": 1,
+  "secs": 98
+ },
+ {
+  "id": "postman",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 118
+ },
+ {
+  "id": "sentry",
+  "ok": true,
+  "tools": 9,
+  "secs": 170
+ },
+ {
+  "id": "semgrep",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 220
+ },
+ {
+  "id": "aws-docs",
+  "ok": true,
+  "tools": 5,
+  "secs": 24
+ },
+ {
+  "id": "figma-api",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 122
+ },
+ {
+  "id": "n8n",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 119
+ },
+ {
+  "id": "docker",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 20
+ },
+ {
+  "id": "sqlite",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 15
+ },
+ {
+  "id": "antv-chart",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 118
+ },
+ {
+  "id": "e2b",
+  "ok": false,
+  "error": "TimeoutError",
+  "secs": 242
+ },
+ {
+  "id": "azure",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 117
+ },
+ {
+  "id": "redis",
+  "ok": true,
+  "tools": 53,
+  "secs": 35
+ },
+ {
+  "id": "mysql",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 118
+ },
+ {
+  "id": "mongodb",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 119
+ },
+ {
+  "id": "postgres",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 163
+ },
+ {
+  "id": "clickhouse",
+  "ok": true,
+  "tools": 3,
+  "secs": 65
+ },
+ {
+  "id": "neo4j",
+  "ok": true,
+  "tools": 3,
+  "secs": 45
+ },
+ {
+  "id": "duckdb",
+  "ok": true,
+  "tools": 4,
+  "secs": 95
+ },
+ {
+  "id": "airtable",
+  "ok": true,
+  "tools": 16,
+  "secs": 42
+ },
+ {
+  "id": "pinecone",
+  "ok": true,
+  "tools": 9,
+  "secs": 45
+ },
+ {
+  "id": "notion",
+  "ok": true,
+  "tools": 24,
+  "secs": 37
+ },
+ {
+  "id": "trello",
+  "ok": true,
+  "tools": 57,
+  "secs": 70
+ },
+ {
+  "id": "chroma",
+  "ok": true,
+  "tools": 13,
+  "secs": 139
+ },
+ {
+  "id": "asana",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 121
+ },
+ {
+  "id": "todoist",
+  "ok": true,
+  "tools": 5,
+  "secs": 153
+ },
+ {
+  "id": "qdrant",
+  "ok": false,
+  "error": "TimeoutError",
+  "secs": 242
+ },
+ {
+  "id": "time",
+  "ok": true,
+  "tools": 2,
+  "secs": 26
+ },
+ {
+  "id": "calculator",
+  "ok": true,
+  "tools": 1,
+  "secs": 19
+ },
+ {
+  "id": "clickup",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 122
+ },
+ {
+  "id": "google-calendar",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 122
+ },
+ {
+  "id": "google-workspace",
+  "ok": true,
+  "tools": 120,
+  "secs": 80
+ },
+ {
+  "id": "discord",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 117
+ },
+ {
+  "id": "resend",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 118
+ },
+ {
+  "id": "slack",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 157
+ },
+ {
+  "id": "paypal",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 118
+ },
+ {
+  "id": "hubspot",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 118
+ },
+ {
+  "id": "gmail",
+  "ok": false,
+  "error": "TimeoutError",
+  "secs": 242
+ },
+ {
+  "id": "coingecko",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 118
+ },
+ {
+  "id": "blender",
+  "ok": true,
+  "tools": 9,
+  "secs": 44
+ },
+ {
+  "id": "elevenlabs",
+  "ok": true,
+  "tools": 27,
+  "secs": 44
+ },
+ {
+  "id": "basic-memory",
+  "ok": true,
+  "tools": 21,
+  "secs": 165
+ },
+ {
+  "id": "commands",
+  "ok": true,
+  "tools": 1,
+  "secs": 34
+ },
+ {
+  "id": "memory",
+  "ok": true,
+  "tools": 9,
+  "secs": 196
+ },
+ {
+  "id": "windows-mcp",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 31
+ },
+ {
+  "id": "sequential-thinking",
+  "ok": false,
+  "error": "McpError: Connection closed",
+  "secs": 118
+ },
+ {
+  "id": "desktop-commander",
+  "ok": true,
+  "tools": 25,
+  "secs": 153
+ },
+ {
+  "id": "home-assistant",
+  "ok": true,
+  "tools": 29,
+  "secs": 111
+ }
+]

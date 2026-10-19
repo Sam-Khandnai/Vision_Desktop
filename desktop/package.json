@@ -1,0 +1,98 @@
+{
+  "name": "vision-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Vision — local desktop AI assistant",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "concurrently -k -n ui,app \"vite\" \"wait-on tcp:5173 && cross-env VISION_DEV=1 electron .\"",
+    "build": "vite build",
+    "start": "npm run build && electron .",
+    "test": "vitest run",
+    "dist": "electron-builder"
+  },
+  "dependencies": {
+    "@fontsource-variable/vazirmatn": "^5.2.5",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.0",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.0",
+    "happy-dom": "^21.0.3",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.9",
+    "wait-on": "^8.0.1",
+    "electron-builder": "^25.1.8"
+  },
+  "productName": "Vision",
+  "author": "Vision",
+  "build": {
+    "appId": "com.vision.assistant",
+    "productName": "Vision",
+    "artifactName": "Vision-Setup-${version}.${ext}",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../build/stage/vision-server",
+        "to": "backend"
+      },
+      {
+        "from": "../build/stage/tools",
+        "to": "tools"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Vision",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "deleteAppDataOnUninstall": false
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "build/icon.png",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "icon": "build/icon.png",
+      "category": "Utility"
+    }
+  }
+}

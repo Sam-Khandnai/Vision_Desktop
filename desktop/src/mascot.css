@@ -1,0 +1,35 @@
+/* Vision mascot */
+.mascot { display: inline-block; flex: none; overflow: visible; }
+.mascot.dim { opacity: .6; filter: grayscale(.7); }
+.mascot.blink .eye-open { transform-box: fill-box; transform-origin: center; animation: mascot-blink 6s infinite; }
+@keyframes mascot-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.07); } }
+.mascot.float { animation: mascot-float 4.5s ease-in-out infinite; }
+@keyframes mascot-float { 50% { transform: translateY(-6px); } }
+.mascot .m-dot { animation: mascot-dot 1.2s infinite; opacity: .3; }
+.mascot .m-dot.d2 { animation-delay: .2s; } .mascot .m-dot.d3 { animation-delay: .4s; }
+@keyframes mascot-dot { 40% { opacity: 1; } }
+.mascot .m-bubble { animation: mascot-pop 2.6s ease-in-out infinite; }
+@keyframes mascot-pop { 50% { opacity: .45; } }
+.mascot-icon { flex: none; }
+
+/* places the mascot appears */
+.brand { gap: 6px; }
+.msg.assistant { flex-direction: row; align-items: flex-start; gap: 12px; }
+.msg-avatar { margin-top: 2px; width: 40px; display: flex; justify-content: center; }
+.msg-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.approval-ask { display: flex; gap: 10px; align-items: center; margin: 0 0 8px; }
+.err-row { display: flex; gap: 8px; align-items: center; color: var(--danger); font-size: 13px; margin-top: 4px; }
+.empty-note { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 18px 8px; color: var(--muted); }
+.empty-note p { margin: 0; }
+.splash .progress { width: 190px; height: 4px; border-radius: 4px; background: var(--panel-2); overflow: hidden; }
+.splash .progress span { display: block; width: 40%; height: 100%; background: var(--accent); border-radius: 4px; animation: mascot-load 1.4s ease-in-out infinite; }
+@keyframes mascot-load { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
+.toast { display: flex; align-items: center; gap: 10px; }
+.tab { display: inline-flex; align-items: center; gap: 8px; }
+.server-face { flex: none; width: 46px; display: flex; justify-content: center; }
+.side-link .mascot-icon, .icon-btn .mascot-icon { transition: transform .15s; }
+.side-link:hover .mascot-icon, .icon-btn:hover .mascot-icon { transform: scale(1.1); }
+@media (prefers-reduced-motion: reduce) {
+  .mascot, .mascot * { animation: none !important; }
+  .splash .progress span { animation: none !important; width: 100%; }
+}

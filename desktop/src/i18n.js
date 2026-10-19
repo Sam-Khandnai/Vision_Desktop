@@ -1,0 +1,115 @@
+const fa = {
+  starting: 'در حال راه‌اندازی دستیار…',
+  close: 'بستن', browse: 'انتخاب…', copy: 'کپی', copied: 'کپی شد', cancel: 'انصراف', confirm: 'تأیید', confirmTitle: 'مطمئنی؟',
+  save: 'ذخیره', saved: 'ذخیره شد', add: 'افزودن', added: 'اضافه شد', delete: 'حذف', edit: 'ویرایش', rename: 'تغییر نام', back: 'بازگشت',
+  optional: 'اختیاری', all: 'همه', docs: 'مستندات', installed: 'اضافه‌شده', offline: 'ارتباط با موتور برنامه برقرار نشد.',
+  engineDown: 'موتور برنامه در دسترس نیست. برنامه را ببند و دوباره باز کن.', loadFailed: 'بارگذاری گفتگو انجام نشد.',
+  guest: 'کاربر', settings: 'تنظیمات', history: 'تاریخچه‌ی گفتگوها', newChat: 'گفتگوی جدید', searchChats: 'جستجو در گفتگوها',
+  noChatsYet: 'هنوز گفتگویی نداری.', noResults: 'نتیجه‌ای پیدا نشد.', untitled: 'بدون عنوان',
+  group_today: 'امروز', group_yesterday: 'دیروز', group_week: '۷ روز گذشته', group_older: 'قدیمی‌تر',
+  catalogLink: 'کاتالوگ MCP', deleteChatConfirm: 'این گفتگو برای همیشه حذف شود؟',
+  greeting: 'امروز چه کاری داریم؟', greetingNamed: 'سلام {name}، امروز چه کاری داریم؟',
+  emptyHint: 'سؤال بپرس یا از من بخواه با ابزارهای متصل کاری انجام بدم.',
+  sugg1: 'پوشه‌ی پروژه‌ام را بررسی کن و بگو چه کار می‌کند', sugg2: 'یک ایمیل رسمی کوتاه برایم بنویس', sugg3: 'این هفته را برایم برنامه‌ریزی کن',
+  composerPlaceholder: 'پیامت را بنویس…', send: 'ارسال', stop: 'توقف',
+  fineprint: 'گفتگوها فقط روی همین رایانه ذخیره می‌شوند. پاسخ‌ها را بررسی کن؛ مدل ممکن است اشتباه کند.',
+  noProviderBanner: 'برای شروع، یک مدل (Provider) متصل کن.', noProvider: 'هنوز مدلی تنظیم نشده است.',
+  toolRunning: 'در حال اجرا', toolWaiting: 'منتظر تأیید تو', toolDone: 'انجام شد', toolFailed: 'ناموفق', toolDeclined: 'رد شد',
+  toolInput: 'ورودی', toolOutput: 'خروجی', approvalTitle: 'تأیید اجرای ابزار',
+  approvalAsk: 'دستیار می‌خواهد ابزار «{tool}» ({server}) را اجرا کند. این کار ممکن است چیزی را تغییر دهد.',
+  allow: 'اجازه بده', deny: 'رد کن', approvalFailed: 'پاسخ تأیید ارسال نشد.',
+  tab_account: 'حساب', tab_provider: 'مدل و API', tab_mcp: 'MCP',
+  aboutYou: 'درباره‌ی تو', aboutYouHint: 'هر چه اینجا بنویسی در همه‌ی گفتگوها به دستیار داده می‌شود تا بهتر کمکت کند.',
+  displayName: 'نام', displayNamePh: 'مثلاً سام', aboutMe: 'درباره‌ی من', aboutMePh: 'مثلاً: برنامه‌نویس هوش مصنوعی هستم و بیشتر با پایتون کار می‌کنم.',
+  customInstructions: 'سبک پاسخ‌دادن', customInstructionsHelp: 'دستیار موقع جواب‌دادن به این توضیح‌ها توجه می‌کند.', customInstructionsPh: 'مثلاً: کوتاه و دقیق جواب بده.',
+  memoryTitle: 'حافظه‌ی دستیار', memoryHint: 'نکته‌های ماندگاری که از گفتگوهایت یاد می‌گیرد (فقط روی همین رایانه). هر مورد را می‌توانی حذف کنی.',
+  addMemoryPh: 'چیزی که باید یادش بماند…', noMemories: 'هنوز چیزی به خاطر سپرده نشده.', clearMemories: 'پاک‌کردن همه‌ی حافظه', clearMemoriesConfirm: 'همه‌ی حافظه‌ی دستیار پاک شود؟',
+  language: 'زبان رابط',
+  providers: 'مدل‌های متصل', providersHint: 'هر سرویس سازگار با OpenAI را می‌توانی وصل کنی.', addProvider: 'افزودن مدل', editProvider: 'ویرایش مدل',
+  noProviders: 'هنوز مدلی اضافه نکرده‌ای.', active: 'فعال', makeActive: 'فعال‌سازی', providerName: 'نام', baseUrlHelp: 'آدرس API، معمولاً با /v1 تمام می‌شود.',
+  apiKey: 'کلید API', apiKeyStored: 'کلید ذخیره شده است. برای تغییر، کلید جدید را وارد کن.', apiKeyHelp: 'کلید در Credential Manager سیستم نگهداری می‌شود.',
+  modelId: 'شناسه‌ی مدل', listModels: 'دریافت لیست', modelsFound: '{n} مدل پیدا شد؛ از لیست پیشنهادی فیلد انتخاب کن.', modelsFailed: 'دریافت لیست انجام نشد.',
+  testConnection: 'تست اتصال', testOk: 'اتصال موفق بود.', testFailed: 'اتصال ناموفق بود.', deleteProviderConfirm: 'مدل «{name}» حذف شود؟',
+  keychainNote: 'کلیدها هرگز داخل پایگاه‌داده یا فایل‌های برنامه ذخیره نمی‌شوند.',
+  browseCatalog: 'مرور کاتالوگ MCP', browseCatalogHint: 'بیش از ۹۰ ابزار آماده با راهنمای اتصال', noNode: 'Node.js نصب نیست؛ سرورهای npx اجرا نمی‌شوند.', noUv: 'uv نصب نیست؛ سرورهای uvx اجرا نمی‌شوند.',
+  connectedServers: 'سرورهای MCP', addManually: 'افزودن دستی', serverName: 'نام سرور', transport: 'نوع اتصال', local: 'محلی', remote: 'راه دور',
+  command: 'دستور', argsLines: 'آرگومان‌ها (هر خط یکی)', envLines: 'متغیرهای محیطی (KEY=VALUE در هر خط)', headersLines: 'هدرها (Key: Value در هر خط)',
+  noServers: 'هنوز سروری اضافه نشده؛ از کاتالوگ شروع کن.', tools: 'ابزار', details: 'جزئیات', approvalMode: 'تأیید قبل از اجرا',
+  approval_smart: 'هوشمند (فقط کارهای تغییردهنده)', approval_always: 'همیشه بپرس', approval_never: 'هرگز نپرس', approvalHelp: 'حالت هوشمند ابزارهای فقط‌خواندنی را بدون پرسش اجرا می‌کند.',
+  reconnect: 'اتصال دوباره', deleteServerConfirm: 'سرور «{name}» حذف شود؟',
+  state_connected: 'متصل', state_connecting: 'در حال اتصال…', state_idle: 'در انتظار', state_error: 'خطا', state_disabled: 'خاموش',
+  mcpSecurity: 'فقط سرورهایی را وصل کن که به آن‌ها اعتماد داری؛ هر سرور به منابعی که به آن می‌دهی دسترسی دارد.',
+  catalogTitle: 'کاتالوگ MCP', catalogSubtitle: '{n} سرور آماده؛ هر کدام با اطلاعات لازم برای اتصال.', catalogSearch: 'جستجوی ابزار…',
+  addServerTitle: 'افزودن {name}', addServer: 'افزودن سرور', noSetupNeeded: 'این سرور به تنظیم اضافه‌ای نیاز ندارد.',
+  riskHighWarn: 'این سرور دسترسی گسترده دارد. فقط به پوشه‌ها و حساب‌هایی که لازم است دسترسی بده.',
+  risk_low: 'کم‌خطر', risk_medium: 'با دقت', risk_high: 'دسترسی بالا',
+}
+const en = {
+  starting: 'Starting the assistant\u2026',
+  close: 'Close', browse: 'Browse…', copy: 'Copy', copied: 'Copied', cancel: 'Cancel', confirm: 'Confirm', confirmTitle: 'Are you sure?',
+  save: 'Save', saved: 'Saved', add: 'Add', added: 'Added', delete: 'Delete', edit: 'Edit', rename: 'Rename', back: 'Back',
+  optional: 'optional', all: 'All', docs: 'Docs', installed: 'Added', offline: 'Could not reach the app engine.',
+  engineDown: 'The app engine is not available. Close the app and open it again.', loadFailed: 'Could not load the conversation.',
+  guest: 'User', settings: 'Settings', history: 'Chat history', newChat: 'New chat', searchChats: 'Search chats',
+  noChatsYet: 'No chats yet.', noResults: 'No results.', untitled: 'Untitled',
+  group_today: 'Today', group_yesterday: 'Yesterday', group_week: 'Previous 7 days', group_older: 'Older',
+  catalogLink: 'MCP catalog', deleteChatConfirm: 'Delete this chat permanently?',
+  greeting: 'What shall we do today?', greetingNamed: 'Hi {name}, what shall we do today?',
+  emptyHint: 'Ask a question, or have me do something with your connected tools.',
+  sugg1: 'Inspect my project folder and tell me what it does', sugg2: 'Write me a short formal email', sugg3: 'Plan my week',
+  composerPlaceholder: 'Write a message…', send: 'Send', stop: 'Stop',
+  fineprint: 'Chats are stored only on this computer. Check answers; models can make mistakes.',
+  noProviderBanner: 'Connect a model provider to get started.', noProvider: 'No model is configured yet.',
+  toolRunning: 'Running', toolWaiting: 'Waiting for you', toolDone: 'Done', toolFailed: 'Failed', toolDeclined: 'Declined',
+  toolInput: 'Input', toolOutput: 'Output', approvalTitle: 'Approve tool call',
+  approvalAsk: 'The assistant wants to run "{tool}" ({server}). This may change something.',
+  allow: 'Allow', deny: 'Deny', approvalFailed: 'Could not send your answer.',
+  tab_account: 'Account', tab_provider: 'Model & API', tab_mcp: 'MCP',
+  aboutYou: 'About you', aboutYouHint: 'Whatever you write here is given to the assistant in every chat so it can help you better.',
+  displayName: 'Name', displayNamePh: 'e.g. Sam', aboutMe: 'About me', aboutMePh: 'e.g. I am an AI programmer and mostly use Python.',
+  customInstructions: 'How to respond', customInstructionsHelp: 'The assistant follows this when answering.', customInstructionsPh: 'e.g. Keep answers short and precise.',
+  memoryTitle: 'Assistant memory', memoryHint: 'Lasting notes learned from your chats (kept only on this computer). You can delete any of them.',
+  addMemoryPh: 'Something to remember…', noMemories: 'Nothing remembered yet.', clearMemories: 'Clear all memory', clearMemoriesConfirm: 'Clear all assistant memory?',
+  language: 'Interface language',
+  providers: 'Connected models', providersHint: 'Connect any OpenAI-compatible service.', addProvider: 'Add model', editProvider: 'Edit model',
+  noProviders: 'You have not added a model yet.', active: 'Active', makeActive: 'Make active', providerName: 'Name', baseUrlHelp: 'The API address, usually ending in /v1.',
+  apiKey: 'API key', apiKeyStored: 'A key is stored. Enter a new one to replace it.', apiKeyHelp: 'The key is kept in your system credential store.',
+  modelId: 'Model ID', listModels: 'Fetch list', modelsFound: '{n} models found; pick one from the field suggestions.', modelsFailed: 'Could not fetch the list.',
+  testConnection: 'Test connection', testOk: 'Connection works.', testFailed: 'Connection failed.', deleteProviderConfirm: 'Delete model "{name}"?',
+  keychainNote: 'Keys are never written to the database or app files.',
+  browseCatalog: 'Browse the MCP catalog', browseCatalogHint: '90+ ready tools with connection guides', noNode: 'Node.js is not installed; npx servers cannot start.', noUv: 'uv is not installed; uvx servers cannot start.',
+  connectedServers: 'MCP servers', addManually: 'Add manually', serverName: 'Server name', transport: 'Transport', local: 'local', remote: 'remote',
+  command: 'Command', argsLines: 'Arguments (one per line)', envLines: 'Environment variables (KEY=VALUE per line)', headersLines: 'Headers (Key: Value per line)',
+  noServers: 'No servers yet; start from the catalog.', tools: 'tools', details: 'Details', approvalMode: 'Ask before running',
+  approval_smart: 'Smart (only changing actions)', approval_always: 'Always ask', approval_never: 'Never ask', approvalHelp: 'Smart mode runs read-only tools without asking.',
+  reconnect: 'Reconnect', deleteServerConfirm: 'Delete server "{name}"?',
+  state_connected: 'Connected', state_connecting: 'Connecting…', state_idle: 'Waiting', state_error: 'Error', state_disabled: 'Off',
+  mcpSecurity: 'Only connect servers you trust; a server can reach every resource you give it.',
+  catalogTitle: 'MCP catalog', catalogSubtitle: '{n} ready servers, each with the details needed to connect.', catalogSearch: 'Search tools…',
+  addServerTitle: 'Add {name}', addServer: 'Add server', noSetupNeeded: 'This server needs no extra setup.',
+  riskHighWarn: 'This server has broad access. Only grant the folders and accounts that are needed.',
+  risk_low: 'Low risk', risk_medium: 'Use care', risk_high: 'High access',
+}
+const DICT = { fa, en }
+
+export function makeT(lang) {
+  const d = DICT[lang] || fa
+  return (key, vars) => {
+    let s = d[key] ?? fa[key] ?? key
+    if (vars) for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, String(v))
+    return s
+  }
+}
+// Catalog texts are {fa, en}; plain strings are accepted too.
+export function loc(value, lang) {
+  if (value && typeof value === 'object') return value[lang] || value.en || value.fa || ''
+  return value || ''
+}
+
+// First run: follow the system language, otherwise the saved choice.
+export function initialLang() {
+  const saved = localStorage.getItem('vision.lang')
+  if (saved === 'fa' || saved === 'en') return saved
+  return (navigator.language || '').toLowerCase().startsWith('fa') ? 'fa' : 'en'
+}
+export { fa, en }
