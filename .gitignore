@@ -9,4 +9,4 @@ desktop/release/
 *.db-wal
 *.db-shm
 secrets.json
-build/
+/build/
