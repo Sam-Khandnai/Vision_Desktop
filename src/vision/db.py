@@ -93,10 +93,70 @@ def connect() -> Iterator[sqlite3.Connection]:
 
 
 # Schema changes for released versions go here, at the END, as (version, SQL). Never edit SCHEMA above or old entries.
-# Example:  (2, "ALTER TABLE conversations ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0;"),
-MIGRATIONS: list[tuple[int, str]] = []
+# Example:  (3, "ALTER TABLE conversations ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0;"),
+MIGRATIONS: list[tuple[int, str]] = [
+    # 2: providers can point at a local server (Ollama, LM Studio ...) that needs no API key,
+    #    and they remember the context window their server really loads.
+    (2, "ALTER TABLE providers ADD COLUMN kind TEXT NOT NULL DEFAULT 'cloud';\n"
+        "ALTER TABLE providers ADD COLUMN context_tokens INTEGER NOT NULL DEFAULT 0;"),
+    # 3: a chat remembers which provider/model answered it, and every message remembers the model that wrote it.
+    (3, "ALTER TABLE conversations ADD COLUMN provider_id TEXT NOT NULL DEFAULT '';\n"
+        "ALTER TABLE conversations ADD COLUMN model_name TEXT NOT NULL DEFAULT '';\n"
+        "ALTER TABLE messages ADD COLUMN model_name TEXT NOT NULL DEFAULT '';"),
+]
 BASELINE_VERSION = 1  # SCHEMA above is version 1 (databases from the first releases have user_version 0)
 KEEP_BACKUPS = 5
+
+# Columns the code needs. A database that was stamped with a version number but built from a different
+# schema (e.g. by an interrupted release) still gets the columns it is missing: ALTER TABLE cannot say
+# "ADD COLUMN IF NOT EXISTS", so we compare with the real table and add only what is absent.
+REQUIRED_COLUMNS: dict[str, dict[str, str]] = {
+    "providers": {
+        "kind": "TEXT NOT NULL DEFAULT 'cloud'",
+        "context_tokens": "INTEGER NOT NULL DEFAULT 0",
+    },
+    "conversations": {
+        "provider_id": "TEXT NOT NULL DEFAULT ''",
+        "model_name": "TEXT NOT NULL DEFAULT ''",
+    },
+    "messages": {
+        "model_name": "TEXT NOT NULL DEFAULT ''",
+    },
+}
+
+
+def _table_columns(conn: sqlite3.Connection, table: str) -> set[str]:
+    return {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+
+
+def _missing_columns() -> dict[str, list[str]]:
+    """Which columns the code needs but this database file does not have yet, per table."""
+    missing: dict[str, list[str]] = {}
+    with connect() as conn:
+        existing = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        for table, columns in REQUIRED_COLUMNS.items():
+            if table not in existing:
+                continue
+            have = _table_columns(conn, table)
+            gone = [name for name in columns if name not in have]
+            if gone:
+                missing[table] = gone
+    return missing
+
+
+def _reconcile_schema() -> None:
+    """Add any column the code needs but the file lacks (the file stays usable: it is copied first)."""
+    with connect() as conn:
+        for table, columns in REQUIRED_COLUMNS.items():
+            have = _table_columns(conn, table)
+            for name in columns:
+                if name not in have:
+                    conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {columns[name]}")
+            # earlier builds stored the answering model in `model` and the local flag in `local`: carry them over
+            if table == "messages" and "model" in have and "model_name" not in have:
+                conn.execute("UPDATE messages SET model_name=model WHERE model_name='' AND model<>''")
+            if table == "providers" and "local" in have and "kind" not in have:
+                conn.execute("UPDATE providers SET kind='local' WHERE local=1")
 
 
 def _read_version(path) -> int:
@@ -141,6 +201,11 @@ def init_db() -> None:
                     f"Database migration to version {version} failed: {exc}. "
                     + (f"Your data was backed up to {backup}." if backup else "")
                 ) from exc
+    # A database can carry the right version number yet a different schema (an interrupted release).
+    # Bring the file up to the columns the code needs - after a backup - so chats keep working.
+    if existing and _missing_columns():
+        _backup(path, start)
+        _reconcile_schema()
 
 
 def row_to_dict(row: sqlite3.Row | None) -> dict[str, Any] | None:

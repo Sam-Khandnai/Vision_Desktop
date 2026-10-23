@@ -64,7 +64,18 @@ export default function App() {
     return () => clearTimeout(id)
   }, [search, ready]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const providerReady = providers.some((p) => p.is_default && p.has_key && p.model_name)
+  // the model picker: the remembered choice, else the default provider's own model
+  const [activeModel, setActiveModel] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('vision.model') || 'null') } catch (_) { return null }
+  })
+  const model = useMemo(() => {
+    if (activeModel && providers.some((p) => p.id === activeModel.provider_id)) return activeModel
+    const d = providers.find((p) => p.is_default) || providers[0]
+    return d ? { provider_id: d.id, model_name: d.model_name } : null
+  }, [activeModel, providers])
+  const changeModel = (m) => { setActiveModel(m); localStorage.setItem('vision.model', JSON.stringify(m)) }
+  const chosen = model && providers.find((p) => p.id === model.provider_id)
+  const providerReady = !!(chosen && model.model_name && (chosen.local || chosen.has_key))
 
   const ctx = useMemo(() => ({ t, lang, setLang, toast, confirm }), [t, lang, toast, confirm])
 
@@ -94,6 +105,7 @@ export default function App() {
         ) : (
           <Chat
             conversationId={activeId} providerReady={providerReady} profile={profile}
+            providers={providers} model={model} onModelChange={changeModel}
             onCreated={(id) => setActiveId(id)} onTouched={() => loadConversations()}
             onOpenSettings={(tab) => setSettings(tab || 'account')}
           />

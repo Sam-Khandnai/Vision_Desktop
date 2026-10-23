@@ -100,7 +100,7 @@ def retrieve(query: str, limit: int = 6) -> list[str]:
 
 # ---------- conversation context ----------
 
-def build_context(conversation_id: str) -> tuple[str, list[dict[str, str]]]:
+def build_context(conversation_id: str, budget: int | None = None) -> tuple[str, list[dict[str, str]]]:
     """Return (summary, recent messages) for a conversation, trimmed to the token budget."""
     with db.connect() as conn:
         conv = conn.execute("SELECT summary, summary_upto FROM conversations WHERE id=?", (conversation_id,)).fetchone()
@@ -114,7 +114,7 @@ def build_context(conversation_id: str) -> tuple[str, list[dict[str, str]]]:
     kept: list[dict[str, str]] = []
     for msg in reversed(messages):
         total += est_tokens(msg["content"])
-        if total > HISTORY_TOKEN_BUDGET and kept:
+        if total > (budget or HISTORY_TOKEN_BUDGET) and kept:
             break
         kept.append(msg)
     kept.reverse()
@@ -131,7 +131,7 @@ def _content_text(content: Any) -> str:
     return str(content)
 
 
-async def maybe_summarize(model: Any, conversation_id: str) -> bool:
+async def maybe_summarize(model: Any, conversation_id: str, trigger: int | None = None) -> bool:
     with db.connect() as conn:
         conv = conn.execute("SELECT summary, summary_upto FROM conversations WHERE id=?", (conversation_id,)).fetchone()
         if not conv:
@@ -143,7 +143,7 @@ async def maybe_summarize(model: Any, conversation_id: str) -> bool:
         ).fetchall()
     if len(rows) <= KEEP_RECENT_MESSAGES:
         return False
-    if sum(est_tokens(r["content"]) for r in rows) < SUMMARY_TRIGGER_TOKENS:
+    if sum(est_tokens(r["content"]) for r in rows) < (trigger or SUMMARY_TRIGGER_TOKENS):
         return False
     old = rows[:-KEEP_RECENT_MESSAGES]
     transcript = "\n".join(f"{r['role']}: {r['content'][:2000]}" for r in old)

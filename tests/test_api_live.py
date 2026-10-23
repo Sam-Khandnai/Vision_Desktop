@@ -154,6 +154,102 @@ def test_stopping_a_stream_keeps_the_partial_answer(live, monkeypatch):
         assert len(msgs) == 2 and msgs[1]["content"].startswith("one") and "four" not in msgs[1]["content"]
 
 
+def test_local_provider_needs_no_api_key_and_can_chat(live):
+    with client(live) as c:
+        r = c.post("/api/providers", json={"name": "Ollama", "base_url": "http://localhost:11434/v1",
+                                           "model_name": "llama3", "local": True})
+        assert r.status_code == 200, r.text
+        p = r.json()
+        assert p["local"] is True and p["has_key"] is False
+        # the fake model is injected by the live fixture, so the turn must run without any stored key
+        cid = new_conv(c)
+        with c.stream("POST", f"/api/conversations/{cid}/chat", json={"message": "hello"}) as resp:
+            events = list(read_sse(resp))
+        assert [e["type"] for e in events][-1] == "done"
+        assert any(e["type"] == "token" for e in events)
+
+
+def test_remote_provider_still_requires_a_key(live):
+    with client(live) as c:
+        r = c.post("/api/providers", json={"name": "Remote", "base_url": "https://api.example.com/v1",
+                                           "model_name": "m", "local": False})
+        assert r.status_code == 200 and r.json()["has_key"] is False
+        cid = new_conv(c)
+        resp = c.post(f"/api/conversations/{cid}/chat", json={"message": "hello"})
+        assert resp.status_code == 400 and resp.json()["detail"] == "no_provider"
+
+
+def test_provider_local_flag_survives_edit(live):
+    with client(live) as c:
+        pid = c.post("/api/providers", json={"name": "Ollama", "base_url": "http://localhost:11434/v1",
+                                             "model_name": "llama3", "local": True}).json()["id"]
+        c.put(f"/api/providers/{pid}", json={"name": "Ollama", "base_url": "http://localhost:11434/v1",
+                                             "model_name": "qwen2", "local": True})
+        row = next(p for p in c.get("/api/providers").json() if p["id"] == pid)
+        assert row["local"] is True and row["model_name"] == "qwen2"
+        # switching back to a remote provider drops the flag and requires a key again
+        c.put(f"/api/providers/{pid}", json={"name": "Remote", "base_url": "https://api.example.com/v1",
+                                             "model_name": "m", "local": False})
+        row = next(p for p in c.get("/api/providers").json() if p["id"] == pid)
+        assert row["local"] is False
+
+
+def test_retry_user_message_drops_the_tail_and_reruns_the_turn(live):
+    with client(live) as c:
+        add_provider(c)
+        cid = new_conv(c)
+        with c.stream("POST", f"/api/conversations/{cid}/chat", json={"message": "first question"}) as r:
+            events = list(read_sse(r))
+        start = next(e for e in events if e["type"] == "start")
+        assert start["user_message_id"]
+        with c.stream("POST", f"/api/conversations/{cid}/chat", json={"message": "second question"}) as r:
+            list(read_sse(r))
+        assert len(c.get(f"/api/conversations/{cid}").json()["messages"]) == 4
+
+        with c.stream("POST", f"/api/conversations/{cid}/retry", json={"message_id": start["user_message_id"]}) as r:
+            retry_events = list(read_sse(r))
+        assert retry_events[0]["type"] == "start"
+        msgs = c.get(f"/api/conversations/{cid}").json()["messages"]
+        assert [m["content"] for m in msgs if m["role"] == "user"] == ["first question"]
+        assert msgs[-1]["content"].strip() == "Hello there"
+
+
+def test_retry_assistant_message_regenerates_from_its_user_message(live):
+    with client(live) as c:
+        add_provider(c)
+        cid = new_conv(c)
+        with c.stream("POST", f"/api/conversations/{cid}/chat", json={"message": "hello there"}) as r:
+            events = list(read_sse(r))
+        assistant_id = next(e for e in events if e["type"] == "done")["message_id"]
+        with c.stream("POST", f"/api/conversations/{cid}/retry", json={"message_id": assistant_id}) as r:
+            assert list(read_sse(r))[0]["type"] == "start"
+        msgs = c.get(f"/api/conversations/{cid}").json()["messages"]
+        assert [m["role"] for m in msgs] == ["user", "assistant"]
+        assert msgs[0]["content"] == "hello there" and msgs[1]["content"].strip() == "Hello there"
+
+
+def test_retry_requires_a_provider_before_deleting_anything(live):
+    with client(live) as c:
+        add_provider(c)
+        cid = new_conv(c)
+        with c.stream("POST", f"/api/conversations/{cid}/chat", json={"message": "keep me"}) as r:
+            events = list(read_sse(r))
+        user_id = next(e for e in events if e["type"] == "start")["user_message_id"]
+        pid = c.get("/api/providers").json()[0]["id"]
+        c.delete(f"/api/providers/{pid}")
+        r = c.post(f"/api/conversations/{cid}/retry", json={"message_id": user_id})
+        assert r.status_code == 400 and r.json()["detail"] == "no_provider"
+        assert len(c.get(f"/api/conversations/{cid}").json()["messages"]) == 2  # nothing was dropped
+
+
+def test_retry_rejects_unknown_message_ids(live):
+    with client(live) as c:
+        add_provider(c)
+        cid = new_conv(c)
+        assert c.post(f"/api/conversations/{cid}/retry", json={"message_id": 999}).status_code == 404
+        assert c.post("/api/conversations/nope/retry", json={"message_id": 1}).status_code == 404
+
+
 def test_conversation_crud_and_search(live):
     with client(live) as c:
         add_provider(c)

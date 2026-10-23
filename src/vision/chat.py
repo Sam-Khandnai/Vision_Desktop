@@ -86,6 +86,7 @@ class TurnState:
     text: str = ""
     tools: list[dict[str, Any]] = field(default_factory=list)
     persisted: bool = False
+    model: str = ""  # the model that wrote this answer, stored with it
 
 
 async def run_turn(
@@ -166,8 +167,8 @@ def persist_assistant(conversation_id: str, state: TurnState) -> int | None:
     state.persisted = True
     with db.connect() as conn:
         cur = conn.execute(
-            "INSERT INTO messages(conversation_id, role, content, tool_json, created_at) VALUES(?,?,?,?,?)",
-            (conversation_id, "assistant", state.text, json.dumps(state.tools, default=str), db.now()),
+            "INSERT INTO messages(conversation_id, role, content, tool_json, model_name, created_at) VALUES(?,?,?,?,?,?)",
+            (conversation_id, "assistant", state.text, json.dumps(state.tools, default=str), state.model, db.now()),
         )
         conn.execute("UPDATE conversations SET updated_at=? WHERE id=?", (db.now(), conversation_id))
         return cur.lastrowid

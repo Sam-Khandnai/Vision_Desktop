@@ -137,12 +137,21 @@ class ProviderIn(BaseModel):
     base_url: str
     model_name: str = ""
     api_key: str | None = None  # None/"" keeps the stored key
+    kind: str = "cloud"         # "cloud" needs an API key; "local" (Ollama, LM Studio ...) does not
+    local: bool | None = None   # friendlier alias for kind: true -> local server, false -> cloud
+    context_tokens: int = 0     # 0 = unknown
+
+    def resolved_kind(self) -> str:
+        if self.local is None:
+            return self.kind
+        return "local" if self.local else "cloud"
 
 
 class ModelsIn(BaseModel):
     base_url: str
     api_key: str | None = None
     provider_id: str | None = None  # use the stored key of this provider when api_key is empty
+    kind: str = "cloud"
 
 
 class TestIn(ModelsIn):
@@ -160,11 +169,24 @@ def get_providers() -> list[dict[str, Any]]:
     return providers.list_providers()
 
 
+@app.get("/api/providers/detect-local", dependencies=[api])
+async def detect_local_servers() -> dict[str, Any]:
+    """Look for Ollama, LM Studio, llama.cpp, vLLM and Jan running on this computer."""
+    return {"servers": await providers.detect_local()}
+
+
+@app.get("/api/models", dependencies=[api])
+async def get_models(refresh: bool = False) -> dict[str, Any]:
+    """Every model of every provider, for the model picker in the chat."""
+    return {"providers": await providers.model_choices(refresh)}
+
+
 @app.post("/api/providers", dependencies=[api])
 def post_provider(body: ProviderIn) -> dict[str, Any]:
     try:
         return providers.save_provider(provider_id=None, name=body.name, base_url=body.base_url,
-                                       model_name=body.model_name, api_key=body.api_key)
+                                       model_name=body.model_name, api_key=body.api_key,
+                                       kind=body.resolved_kind(), context_tokens=body.context_tokens)
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from exc
 
@@ -175,7 +197,8 @@ def put_provider(provider_id: str, body: ProviderIn) -> dict[str, Any]:
         raise HTTPException(404, "Provider not found")
     try:
         return providers.save_provider(provider_id=provider_id, name=body.name, base_url=body.base_url,
-                                       model_name=body.model_name, api_key=body.api_key)
+                                       model_name=body.model_name, api_key=body.api_key,
+                                       kind=body.resolved_kind(), context_tokens=body.context_tokens)
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from exc
 
@@ -195,7 +218,8 @@ def default_provider(provider_id: str) -> dict[str, bool]:
 @app.post("/api/providers/models", dependencies=[api])
 async def post_models(body: ModelsIn) -> dict[str, Any]:
     try:
-        models = await providers.list_models(base_url=body.base_url, api_key=_resolve_key(body.api_key, body.provider_id))
+        models = await providers.list_models(base_url=body.base_url, local=body.kind == "local",
+                                             api_key=_resolve_key(body.api_key, body.provider_id))
         return {"models": [m["id"] for m in models]}
     except Exception as exc:
         raise HTTPException(400, f"{type(exc).__name__}: {exc}") from exc
@@ -205,7 +229,7 @@ async def post_models(body: ModelsIn) -> dict[str, Any]:
 async def post_test(body: TestIn) -> dict[str, Any]:
     try:
         model = providers.create_chat_model(base_url=body.base_url, api_key=_resolve_key(body.api_key, body.provider_id),
-                                            model_name=body.model_name)
+                                            model_name=body.model_name, local=body.kind == "local", timeout=180)
         return {"reply": await providers.test_model(model)}
     except Exception as exc:
         raise HTTPException(400, f"{type(exc).__name__}: {exc}") from exc
@@ -379,11 +403,11 @@ def create_conversation() -> dict[str, Any]:
 @app.get("/api/conversations/{cid}", dependencies=[api])
 def get_conversation(cid: str) -> dict[str, Any]:
     with db.connect() as conn:
-        conv = conn.execute("SELECT id, title, updated_at FROM conversations WHERE id=?", (cid,)).fetchone()
+        conv = conn.execute("SELECT id, title, updated_at, provider_id, model_name FROM conversations WHERE id=?", (cid,)).fetchone()
         if conv is None:
             raise HTTPException(404, "Conversation not found")
         rows = conn.execute(
-            "SELECT id, role, content, tool_json, created_at FROM messages WHERE conversation_id=? ORDER BY id", (cid,)
+            "SELECT id, role, content, tool_json, created_at, model_name FROM messages WHERE conversation_id=? ORDER BY id", (cid,)
         ).fetchall()
     messages = [{**dict(r), "tools": json.loads(r["tool_json"] or "[]")} for r in rows]
     for m in messages:
@@ -407,6 +431,12 @@ def delete_conversation(cid: str) -> dict[str, bool]:
 
 class ChatIn(BaseModel):
     message: str = Field(..., min_length=1, max_length=60000)
+    provider_id: str | None = None  # which provider/model to use for this message (the model picker)
+    model_name: str | None = None
+
+
+class RetryIn(BaseModel):
+    message_id: int  # the user or assistant message to start again from
 
 
 def _sse(event: dict[str, Any]) -> bytes:
@@ -418,63 +448,107 @@ def _title_from(text: str) -> str:
     return line if len(line) <= 48 else line[:47].rstrip() + "…"
 
 
-async def _after_turn(model: Any, cid: str, user_text: str, memory_on: bool) -> None:
+async def _after_turn(model: Any, cid: str, user_text: str, memory_on: bool, trigger: int | None = None) -> None:
     try:
-        await memory.maybe_summarize(model, cid)
+        await memory.maybe_summarize(model, cid, trigger)
         if memory_on and memory.should_extract(cid, user_text):
             await memory.extract_facts(model, cid)
     except Exception:
         logger.warning("Post-turn memory work failed", exc_info=True)
 
 
-@app.post("/api/conversations/{cid}/chat", dependencies=[api])
-async def chat_endpoint(cid: str, body: ChatIn) -> StreamingResponse:
-    with db.connect() as conn:
-        conv = conn.execute("SELECT id, title FROM conversations WHERE id=?", (cid,)).fetchone()
-    if conv is None:
-        raise HTTPException(404, "Conversation not found")
-    provider = providers.get_default_provider()
-    if provider is None or not provider["model_name"] or not providers.key_for(provider["id"]):
-        raise HTTPException(400, "no_provider")
-    try:
-        model = providers.model_for(provider)
-    except ValueError as exc:
-        raise HTTPException(400, str(exc)) from exc
+# (base_url, model) pairs that rejected tool calls: next time we do not even try (saves a failed round trip)
+NO_TOOLS: set[tuple[str, str]] = set()
 
+
+def _tools_unsupported(exc: BaseException) -> bool:
+    text = str(exc).lower()
+    return "tool" in text and ("support" in text or "tool choice" in text or "tool-choice" in text)
+
+
+def _connection_problem(exc: BaseException, provider: dict[str, Any]) -> dict[str, Any] | None:
+    """Translatable errors for a local server that is switched off or still loading its model."""
+    if not providers.is_local(provider):
+        return None
+    import openai
+
+    if isinstance(exc, openai.APITimeoutError):
+        return {"code": "local_timeout", "url": provider["base_url"]}
+    if isinstance(exc, openai.APIConnectionError):
+        return {"code": "local_unreachable", "url": provider["base_url"]}
+    return None
+
+
+def _pick_provider(body: ChatIn, conv: Any) -> dict[str, Any] | None:
+    """Which provider and model answers: the one chosen in the picker, else the chat's last one, else the default."""
+    row = providers.get_provider(body.provider_id or conv["provider_id"]) if (body.provider_id or conv["provider_id"]) else None
+    if body.provider_id and row is None:
+        raise HTTPException(400, "unknown_provider")
+    if row is None:
+        row = providers.get_default_provider()
+    if row is None:
+        return None
+    remembered = conv["model_name"] if row["id"] == conv["provider_id"] else ""
+    return {**row, "model_name": (body.model_name or remembered or row["model_name"] or "").strip()}
+
+
+def _stream_turn(cid: str, user_text: str, provider: dict[str, Any], title: str) -> StreamingResponse:
+    """Store one user message and stream the assistant's answer for it (shared by chat and retry)."""
+    model = providers.model_for(provider)
     # history must be read BEFORE the new user message is stored
-    summary, history = memory.build_context(cid)
-    title = conv["title"] or _title_from(body.message)
+    budget = providers.history_budget(provider)  # local servers load small context windows: send less history
+    summary, history = memory.build_context(cid, budget)
     with db.connect() as conn:
-        conn.execute(
+        cur = conn.execute(
             "INSERT INTO messages(conversation_id, role, content, created_at) VALUES(?,?,?,?)",
-            (cid, "user", body.message, db.now()),
+            (cid, "user", user_text, db.now()),
         )
-        conn.execute("UPDATE conversations SET title=?, updated_at=? WHERE id=?", (title, db.now(), cid))
+        user_message_id = cur.lastrowid
+        conn.execute("UPDATE conversations SET title=?, updated_at=?, provider_id=?, model_name=? WHERE id=?",
+                     (title, db.now(), provider["id"], provider["model_name"], cid))
 
     profile = db.kv_get_all("profile")
     memory_on = db.setting_bool("memory_enabled", True)
-    facts = memory.retrieve(body.message) if memory_on else []
+    facts = memory.retrieve(user_text) if memory_on else []
     tools = hub.get_tools()
-    system_prompt = chat.build_system_prompt(profile=profile, memories=facts, summary=summary,
-                                             tool_names=[t.name for t in tools])
+    model_key = (provider["base_url"], provider["model_name"])
+
+    def make_prompt(tool_list: list[Any]) -> str:
+        return chat.build_system_prompt(profile=profile, memories=facts, summary=summary,
+                                        tool_names=[t.name for t in tool_list])
 
     queue: asyncio.Queue = asyncio.Queue()
-    state = chat.TurnState()
+    state = chat.TurnState(model=provider["model_name"])
 
     async def producer() -> None:
         approvals.event_sink.set(queue)
+        notice = {"type": "notice", "code": "no_tools", "model": provider["model_name"]}
         try:
-            await chat.run_turn(model=model, tools=tools, system_prompt=system_prompt, history=history,
-                                user_text=body.message, sink=queue, state=state)
+            use_tools = [] if model_key in NO_TOOLS else tools
+            if tools and not use_tools:
+                await queue.put(notice)
+            try:
+                await chat.run_turn(model=model, tools=use_tools, system_prompt=make_prompt(use_tools), history=history,
+                                    user_text=user_text, sink=queue, state=state)
+            except Exception as exc:
+                # some models (many local ones) refuse tool calls: continue the same answer without tools
+                if not (use_tools and not state.text and not state.tools and _tools_unsupported(exc)):
+                    raise
+                NO_TOOLS.add(model_key)
+                await queue.put(notice)
+                await chat.run_turn(model=model, tools=[], system_prompt=make_prompt([]), history=history,
+                                    user_text=user_text, sink=queue, state=state)
             message_id = chat.persist_assistant(cid, state)
             await queue.put({"type": "done", "message_id": message_id, "title": title})
-            _spawn(_after_turn(model, cid, body.message, memory_on))
+            _spawn(_after_turn(model, cid, user_text, memory_on, int(budget * 1.3) if budget else None))
         except asyncio.CancelledError:
             raise
         except Exception as exc:
             logger.warning("Chat turn failed", exc_info=True)
             chat.persist_assistant(cid, state)
-            await queue.put({"type": "error", "message": f"{type(exc).__name__}: {exc}"})
+            event = {"type": "error", "message": f"{type(exc).__name__}: {exc}"}
+            event.update(_connection_problem(exc, provider) or {})
+            await queue.put(event)
         finally:
             await queue.put(None)
 
@@ -482,7 +556,8 @@ async def chat_endpoint(cid: str, body: ChatIn) -> StreamingResponse:
 
     async def stream():
         try:
-            yield _sse({"type": "start", "title": title, "tools": [t.name for t in tools]})
+            yield _sse({"type": "start", "title": title, "tools": [t.name for t in tools], "user_message_id": user_message_id,
+                        "model": provider["model_name"], "provider": provider["name"]})
             while True:
                 event = await queue.get()
                 if event is None:
@@ -495,6 +570,54 @@ async def chat_endpoint(cid: str, body: ChatIn) -> StreamingResponse:
 
     return StreamingResponse(stream(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+@app.post("/api/conversations/{cid}/chat", dependencies=[api])
+async def chat_endpoint(cid: str, body: ChatIn) -> StreamingResponse:
+    with db.connect() as conn:
+        conv = conn.execute("SELECT id, title, provider_id, model_name FROM conversations WHERE id=?", (cid,)).fetchone()
+    if conv is None:
+        raise HTTPException(404, "Conversation not found")
+    provider = _pick_provider(body, conv)
+    if not providers.is_ready(provider):
+        raise HTTPException(400, "no_provider")
+    try:
+        providers.model_for(provider)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    return _stream_turn(cid, body.message, provider, conv["title"] or _title_from(body.message))
+
+
+def _retry_target(conn: Any, cid: str, message_id: int) -> tuple[int, str]:
+    """The user message a retry starts from: the message itself, or the user turn before an assistant answer."""
+    row = conn.execute("SELECT id, role, content FROM messages WHERE id=? AND conversation_id=?",
+                       (message_id, cid)).fetchone()
+    if row is None:
+        raise HTTPException(404, "Message not found")
+    if row["role"] == "user":
+        return row["id"], row["content"]
+    prev = conn.execute(
+        "SELECT id, content FROM messages WHERE conversation_id=? AND role='user' AND id<? ORDER BY id DESC LIMIT 1",
+        (cid, message_id),
+    ).fetchone()
+    if prev is None:
+        raise HTTPException(404, "No user message to retry from")
+    return prev["id"], prev["content"]
+
+
+@app.post("/api/conversations/{cid}/retry", dependencies=[api])
+async def retry_endpoint(cid: str, body: RetryIn) -> StreamingResponse:
+    with db.connect() as conn:
+        conv = conn.execute("SELECT id, title, provider_id, model_name FROM conversations WHERE id=?", (cid,)).fetchone()
+        if conv is None:
+            raise HTTPException(404, "Conversation not found")
+        user_id, user_text = _retry_target(conn, cid, body.message_id)
+    provider = _pick_provider(ChatIn(message=user_text), conv)  # the chat's remembered model answers again
+    if not providers.is_ready(provider):  # checked before anything is deleted, so a failed retry loses nothing
+        raise HTTPException(400, "no_provider")
+    with db.connect() as conn:  # drop the old answer (and everything after it) and run the turn again
+        conn.execute("DELETE FROM messages WHERE conversation_id=? AND id>=?", (cid, user_id))
+    return _stream_turn(cid, user_text, provider, conv["title"] or _title_from(user_text))
 
 
 def self_check() -> dict[str, Any]:

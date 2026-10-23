@@ -46,13 +46,19 @@ export const api = {
 }
 
 // Server-sent events over fetch (EventSource cannot send POST bodies or auth headers).
-export async function streamChat(conversationId, message, onEvent, signal) {
-  const res = await fetch(`${cfg.baseUrl}/api/conversations/${conversationId}/chat`, {
-    method: 'POST',
-    headers: headers(),
-    body: JSON.stringify({ message }),
-    signal,
-  })
+async function streamEvents(path, body, onEvent, signal) {
+  let res
+  try {
+    res = await fetch(cfg.baseUrl + path, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify(body),
+      signal,
+    })
+  } catch (e) {
+    if (e.name === 'AbortError') throw e // the user pressed Stop
+    throw new ApiError('offline', 0) // an unreachable engine must not surface as "Failed to fetch"
+  }
   if (!res.ok) throw await toError(res)
   const reader = res.body.getReader()
   const decoder = new TextDecoder()
@@ -71,7 +77,41 @@ export async function streamChat(conversationId, message, onEvent, signal) {
   }
 }
 
+export const streamChat = (conversationId, message, onEvent, signal) =>
+  streamEvents(`/api/conversations/${conversationId}/chat`, { message }, onEvent, signal)
+
+export const streamChatWithModel = (conversationId, message, model, onEvent, signal) =>
+  streamEvents(`/api/conversations/${conversationId}/chat`,
+    { message, provider_id: model?.provider_id, model_name: model?.model_name }, onEvent, signal)
+
+export const streamRetry = (conversationId, messageId, onEvent, signal) =>
+  streamEvents(`/api/conversations/${conversationId}/retry`, { message_id: messageId }, onEvent, signal)
+
 export const openExternal = (url) => (window.vision ? window.vision.openExternal(url) : window.open(url, '_blank'))
 export const pickFolder = () => (window.vision ? window.vision.pickFolder() : Promise.resolve(null))
 export const pickFile = () => (window.vision ? window.vision.pickFile() : Promise.resolve(null))
 export const hasNativePicker = () => Boolean(window.vision)
+
+// navigator.clipboard needs a secure context; fall back to a hidden textarea so copy always works.
+export async function copyToClipboard(text) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text)
+      return true
+    }
+  } catch (_) { /* fall through to the legacy path */ }
+  try {
+    const area = document.createElement('textarea')
+    area.value = text
+    area.setAttribute('readonly', '')
+    area.style.position = 'fixed'
+    area.style.opacity = '0'
+    document.body.appendChild(area)
+    area.select()
+    const ok = document.execCommand('copy')
+    document.body.removeChild(area)
+    return ok
+  } catch (_) {
+    return false
+  }
+}

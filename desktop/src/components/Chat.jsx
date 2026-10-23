@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { AlertTriangle, ArrowUp, Check, ChevronDown, ChevronRight, ShieldQuestion, Square, Wrench, X } from 'lucide-react'
-import { ApiError, api, streamChat } from '../api'
+import { AlertTriangle, ArrowUp, Check, ChevronDown, ChevronRight, Copy, RotateCcw, Square, Wrench, X } from 'lucide-react'
+import { ApiError, api, copyToClipboard, streamChatWithModel, streamRetry } from '../api'
 import { useApp } from '../ctx'
 import Mascot from './Mascot'
 import Markdown from './Markdown'
+import ModelPicker from './ModelPicker'
 import { Spinner } from './ui'
 
 const statusOf = (tool) => {
@@ -55,26 +56,76 @@ function ToolCard({ tool, onAnswer }) {
   )
 }
 
-function Message({ msg, onAnswer, streaming }) {
+function MessageActions({ text, canRetry, onCopy, onRetry }) {
+  const { t } = useApp()
+  const [done, setDone] = useState(false)
+  const copy = async () => {
+    await onCopy(text)
+    setDone(true)
+    setTimeout(() => setDone(false), 1500)
+  }
+  return (
+    <div className="msg-actions">
+      <button className="icon-btn small" onClick={copy} title={t('copy')} aria-label={t('copy')}>
+        {done ? <Check size={14} /> : <Copy size={14} />}
+      </button>
+      <button className="icon-btn small" onClick={onRetry} disabled={!canRetry} title={t('retry')} aria-label={t('retry')}>
+        <RotateCcw size={14} />
+      </button>
+    </div>
+  )
+}
+
+/* Minimal live status: shows what the assistant is doing while the answer is still empty. */
+export function ActivityStrip({ toolName }) {
+  const { t } = useApp()
+  return (
+    <div className="activity" role="status" aria-live="polite">
+      <span className="activity-orb" aria-hidden="true"><i /><i /><i /></span>
+      <span className="activity-label" dir="auto">
+        {toolName ? t('callingTool', { name: toolName }) : t('thinking')}
+      </span>
+      <span className="activity-dots" aria-hidden="true"><b /><b /><b /></span>
+    </div>
+  )
+}
+
+function Message({ msg, onAnswer, streaming, canRetry, onCopy, onRetry }) {
+  const actions = (msg.content || msg.error) && (
+    <MessageActions text={msg.content || ''} canRetry={canRetry} onCopy={onCopy} onRetry={onRetry} />
+  )
   if (msg.role === 'user') {
-    return <div className="msg user"><div className="bubble" dir="auto">{msg.content}</div></div>
+    return (
+      <div className="msg user">
+        <div className="bubble" dir="auto">{msg.content}</div>
+        {actions}
+      </div>
+    )
   }
   const tools = msg.tools || []
   const waiting = tools.some((x) => x.approval?.state === 'pending')
+  const running = tools.find((x) => statusOf(x) === 'running')
+  // a tool that is still running is represented by the single activity line, not a card
+  const settled = tools.filter((x) => statusOf(x) !== 'running')
+  const busy = !msg.error && !waiting && (Boolean(running) || (streaming && !msg.content))
   const mood = msg.error ? 'sad' : waiting ? 'curious' : streaming ? (msg.content ? 'typing' : 'thinking') : 'normal'
   return (
     <div className="msg assistant">
       <div className="msg-avatar"><Mascot mood={mood} size={40} blink={!streaming} /></div>
       <div className="msg-body">
-        {tools.map((tool) => <ToolCard key={tool.id} tool={tool} onAnswer={onAnswer} />)}
+        {busy && <ActivityStrip toolName={running?.name} />}
+        {msg.notice && <div className="notice-line">{msg.notice}</div>}
+        {settled.map((tool) => <ToolCard key={tool.id} tool={tool} onAnswer={onAnswer} />)}
         {msg.content ? <div className="prose" dir="auto"><Markdown text={msg.content} /></div> : null}
         {msg.error && <div className="err-row"><AlertTriangle size={15} /> {msg.error}</div>}
+        {msg.model_name && <div className="msg-model" dir="ltr" title={msg.model_name}>{msg.model_name}</div>}
+        {actions}
       </div>
     </div>
   )
 }
 
-export default function Chat({ conversationId, providerReady, profile, onCreated, onTouched, onOpenSettings }) {
+export default function Chat({ conversationId, providerReady, profile, providers, model, onModelChange, onCreated, onTouched, onOpenSettings }) {
   const { t, toast } = useApp()
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
@@ -93,7 +144,11 @@ export default function Chat({ conversationId, providerReady, profile, onCreated
     let cancelled = false
     setLoading(true)
     api.get(`/api/conversations/${conversationId}`)
-      .then((c) => { if (!cancelled) setMessages(c.messages) })
+      .then((c) => {
+        if (cancelled) return
+        setMessages(c.messages)
+        if (c.provider_id && c.model_name) onModelChange({ provider_id: c.provider_id, model_name: c.model_name }) // the chat remembers its model
+      })
       .catch(() => toast(t('loadFailed'), 'error'))
       .finally(() => !cancelled && setLoading(false))
     return () => { cancelled = true }
@@ -120,7 +175,13 @@ export default function Chat({ conversationId, providerReady, profile, onCreated
   const patchTool = (tools, id, fn) => tools.map((x) => (x.id === id ? fn(x) : x))
 
   const onEvent = useCallback((ev) => {
-    if (ev.type === 'token') patchLast((m) => ({ ...m, content: (m.content || '') + ev.text }))
+    if (ev.type === 'start') {
+      patchLast((m) => ({ ...m, model_name: ev.model }))
+      if (ev.user_message_id) {
+        setMessages((m) => (m.length >= 2 ? [...m.slice(0, -2), { ...m[m.length - 2], id: ev.user_message_id }, m[m.length - 1]] : m))
+      }
+    }
+    else if (ev.type === 'token') patchLast((m) => ({ ...m, content: (m.content || '') + ev.text }))
     else if (ev.type === 'tool_start') patchLast((m) => ({ ...m, tools: [...(m.tools || []), { id: ev.id, name: ev.name, args: ev.args }] }))
     else if (ev.type === 'tool_end') patchLast((m) => ({ ...m, tools: patchTool(m.tools || [], ev.id, (x) => ({ ...x, ok: ev.ok, output: ev.output, approval: x.approval ? { ...x.approval, state: x.approval.state === 'pending' ? 'allowed' : x.approval.state } : undefined })) }))
     else if (ev.type === 'approval_request') {
@@ -134,13 +195,42 @@ export default function Chat({ conversationId, providerReady, profile, onCreated
         }
         return { ...m, tools }
       })
-    } else if (ev.type === 'error') patchLast((m) => ({ ...m, error: ev.message }))
-    else if (ev.type === 'done') onTouched(ev.title)
-  }, [patchLast, onTouched])
+    } else if (ev.type === 'notice') patchLast((m) => ({ ...m, notice: ev.code === 'no_tools' ? t('noToolsNotice', { model: ev.model }) : '' }))
+    else if (ev.type === 'error') patchLast((m) => ({ ...m, error: ev.code === 'local_unreachable' ? t('localUnreachable', { url: ev.url }) : ev.code === 'local_timeout' ? t('localTimeout') : ev.message }))
+    else if (ev.type === 'done') {
+      if (ev.message_id) patchLast((m) => ({ ...m, id: ev.message_id }))
+      onTouched(ev.title)
+    }
+  }, [patchLast, onTouched, t])
 
   const answer = async (tool, approve) => {
     setMessages((ms) => ms.map((m) => ({ ...m, tools: (m.tools || []).map((x) => (x.id === tool.id ? { ...x, approval: { ...x.approval, state: approve ? 'allowed' : 'denied' } } : x)) })))
     try { await api.post(`/api/approvals/${tool.approval.id}`, { approve }) } catch (_) { toast(t('approvalFailed'), 'error') }
+  }
+
+  const copyText = async (content) => {
+    if (await copyToClipboard(content)) toast(t('copied'))
+    else toast(t('copyFailed'), 'error')
+  }
+
+  // Shared by "send" and "retry": replace the tail from `keep` on, then stream one turn.
+  const runTurn = async (cid, keep, userText, call) => {
+    stick.current = true
+    setMessages((m) => [...m.slice(0, keep), { role: 'user', content: userText }, { role: 'assistant', content: '', tools: [] }])
+    setStreaming(true)
+    const ctrl = new AbortController()
+    abortRef.current = ctrl
+    try {
+      await call(cid, ctrl.signal)
+    } catch (e) {
+      if (e.name === 'AbortError') { /* user pressed Stop */ }
+      else if (e instanceof ApiError && e.message === 'no_provider') { patchLast((m) => ({ ...m, error: t('noProvider') })); onOpenSettings('provider') }
+      else patchLast((m) => ({ ...m, error: e instanceof ApiError && e.status === 0 ? t('offline') : e.message }))
+    } finally {
+      setStreaming(false)
+      abortRef.current = null
+      onTouched()
+    }
   }
 
   const send = async (override) => {
@@ -148,7 +238,6 @@ export default function Chat({ conversationId, providerReady, profile, onCreated
     if (!content || streaming) return
     if (!providerReady) { onOpenSettings('provider'); return }
     setText('')
-    stick.current = true
     let cid = conversationId
     try {
       if (!cid) {
@@ -160,21 +249,21 @@ export default function Chat({ conversationId, providerReady, profile, onCreated
     } catch (e) {
       toast(t('offline'), 'error'); setText(content); return
     }
-    setMessages((m) => [...m, { role: 'user', content }, { role: 'assistant', content: '', tools: [] }])
-    setStreaming(true)
-    const ctrl = new AbortController()
-    abortRef.current = ctrl
-    try {
-      await streamChat(cid, content, onEvent, ctrl.signal)
-    } catch (e) {
-      if (e.name === 'AbortError') { /* user pressed Stop */ }
-      else if (e instanceof ApiError && e.message === 'no_provider') { patchLast((m) => ({ ...m, error: t('noProvider') })); onOpenSettings('provider') }
-      else patchLast((m) => ({ ...m, error: e instanceof ApiError && e.status === 0 ? t('offline') : e.message }))
-    } finally {
-      setStreaming(false)
-      abortRef.current = null
-      onTouched()
-    }
+    await runTurn(cid, messages.length, content, (id, signal) => streamChatWithModel(id, content, model, onEvent, signal))
+  }
+
+  const retry = async (index) => {
+    if (streaming) return
+    if (!providerReady) { onOpenSettings('provider'); return }
+    if (!conversationId) return
+    // for an assistant message, start again from the user message that produced it
+    let start = index
+    while (start > 0 && messages[start].role !== 'user') start--
+    if (messages[start]?.role !== 'user') return
+    const userText = messages[start].content
+    const target = messages[start]
+    if (!target.id) { toast(t('retryUnavailable'), 'error'); return }
+    await runTurn(conversationId, start, userText, (id, signal) => streamRetry(id, target.id, onEvent, signal))
   }
 
   const stop = () => abortRef.current?.abort()
@@ -203,7 +292,10 @@ export default function Chat({ conversationId, providerReady, profile, onCreated
         ) : (
           <div className="thread">
             {messages.map((m, i) => (
-              <Message key={m.id ?? `n${i}`} msg={m} onAnswer={answer} streaming={streaming && i === messages.length - 1} />
+              <Message
+                key={m.id ?? `n${i}`} msg={m} onAnswer={answer} streaming={streaming && i === messages.length - 1}
+                canRetry={!streaming && Boolean(m.id)} onCopy={copyText} onRetry={() => retry(i)}
+              />
             ))}
           </div>
         )}
@@ -216,6 +308,9 @@ export default function Chat({ conversationId, providerReady, profile, onCreated
           </button>
         )}
         <div className="composer">
+          <div className="composer-model">
+            <ModelPicker value={model} providers={providers} onChange={onModelChange} onManage={() => onOpenSettings('provider')} />
+          </div>
           <textarea ref={area} dir="auto" rows={1} value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onKeyDown} placeholder={t('composerPlaceholder')} aria-label={t('composerPlaceholder')} />
           {streaming ? (
             <button className="send stop" onClick={stop} aria-label={t('stop')} title={t('stop')}><Square size={15} fill="currentColor" /></button>

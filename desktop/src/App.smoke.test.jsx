@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 // Drives the real UI against the real backend (scripted fake model + real stdio MCP server).
-import { afterAll, beforeAll, expect, test } from 'vitest'
+import { afterAll, afterEach, beforeAll, expect, test } from 'vitest'
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { spawn } from 'node:child_process'
@@ -18,6 +18,7 @@ beforeAll(async () => {
   await new Promise((r) => setTimeout(r, 2500)) // let the MCP server connect
 }, 90000)
 afterAll(() => { cleanup(); proc?.kill() })
+afterEach(cleanup) // every test starts from its own DOM, so the previous app cannot leak into the next
 
 test('chat, tool approval, settings and catalog work end to end', async () => {
   localStorage.setItem('vision.lang', 'fa')
@@ -83,4 +84,89 @@ test('chat, tool approval, settings and catalog work end to end', async () => {
   await user.type(screen.getByPlaceholderText('Search tools…'), 'مخزن')
   expect(await screen.findByText('GitHub')).toBeTruthy()
   expect(localStorage.getItem('vision.lang')).toBe('en')
+}, 120000)
+
+test('every message can be copied and a turn can be retried', async () => {
+  localStorage.setItem('vision.lang', 'fa')
+  const user = userEvent.setup()
+  const calls = []
+  // happy-dom has no clipboard API: stub it so the copy button has something to call
+  const written = []
+  Object.defineProperty(navigator, 'clipboard', {
+    configurable: true,
+    value: { writeText: async (text) => { written.push(text) } },
+  })
+  const realFetch = globalThis.fetch
+  globalThis.fetch = (url, opts) => { calls.push(String(url)); return realFetch(url, opts) }
+  try {
+    render(<App />)
+    const box = await screen.findByPlaceholderText('پیامت را بنویس…', {}, { timeout: 15000 })
+    await user.type(box, 'سلام')
+    await user.click(screen.getByRole('button', { name: 'ارسال' }))
+    expect(await screen.findByText('Hello there', {}, { timeout: 15000 })).toBeTruthy()
+
+    // both the user message and the answer expose copy + retry
+    await waitFor(() => expect(screen.getAllByRole('button', { name: 'کپی' })).toHaveLength(2))
+    expect(screen.getAllByRole('button', { name: 'تلاش دوباره' })).toHaveLength(2)
+
+    await user.click(screen.getAllByRole('button', { name: 'کپی' })[1])
+    expect(await screen.findByText('کپی شد')).toBeTruthy()
+
+    expect(written[0].trim()).toBe('Hello there')
+    await user.click(screen.getAllByRole('button', { name: 'کپی' })[0])
+    await waitFor(() => expect(written[1]).toBe('سلام'))
+
+    // retrying the answer re-runs the turn for the same user message
+    calls.length = 0
+    await user.click(screen.getAllByRole('button', { name: 'تلاش دوباره' })[1])
+    await waitFor(() => expect(calls.some((u) => u.endsWith('/retry'))).toBe(true), { timeout: 15000 })
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'توقف' })).toBeNull(), { timeout: 15000 })
+    expect(document.querySelectorAll('.thread .msg.user')).toHaveLength(1) // the user message was not duplicated
+    expect(document.querySelectorAll('.thread .msg.assistant')).toHaveLength(1)
+  } finally {
+    globalThis.fetch = realFetch
+  }
+}, 120000)
+
+test('a local Ollama model can be added without an API key', async () => {
+  localStorage.setItem('vision.lang', 'fa')
+  const user = userEvent.setup()
+  render(<App />)
+
+  await user.click(await screen.findByRole('button', { name: 'تنظیمات' }, { timeout: 15000 }))
+  const tabs = await screen.findAllByRole('tab')
+  await user.click(tabs[1]) // Model & API
+
+  await user.click(await screen.findByRole('button', { name: 'افزودن مدل' }))
+  await user.click(screen.getByRole('button', { name: 'Ollama' }))
+
+  // local mode hides the API key field and pre-fills the Ollama address
+  const localSwitch = screen.getByRole('switch', { name: 'مدل محلی (Ollama)' })
+  expect(localSwitch.getAttribute('aria-checked')).toBe('true')
+  expect(screen.queryByLabelText('کلید API')).toBeNull()
+  expect(screen.getByDisplayValue('http://localhost:11434/v1')).toBeTruthy()
+
+  await user.type(screen.getByPlaceholderText('provider-model-id'), 'llama3')
+  await user.click(screen.getByRole('button', { name: 'ذخیره' }))
+
+  // the saved provider is listed with the local badge
+  expect(await screen.findByText('محلی', {}, { timeout: 10000 })).toBeTruthy()
+  expect(screen.getByText(/llama3/)).toBeTruthy()
+}, 120000)
+
+// The model switcher in the chat lists every model of every provider and remembers the choice.
+test('the chat model picker switches the answering model', async () => {
+  localStorage.setItem('vision.lang', 'en')
+  localStorage.removeItem('vision.model')
+  const user = userEvent.setup()
+  render(<App />)
+
+  const picker = await screen.findByRole('button', { name: /Choose a model|fake-1/i }, { timeout: 15000 })
+  // the picker sits inside the message box, not in a separate bar above it
+  expect(picker.closest('.composer')).toBeTruthy()
+  await user.click(picker)
+  const list = await screen.findByRole('listbox', { name: 'Choose a model' })
+  await user.click(await within(list).findByRole('option', { name: /fake-1/ }, { timeout: 15000 }))
+  expect(screen.getByRole('button', { name: /fake-1/i })).toBeTruthy()
+  expect(JSON.parse(localStorage.getItem('vision.model')).model_name).toBe('fake-1')
 }, 120000)

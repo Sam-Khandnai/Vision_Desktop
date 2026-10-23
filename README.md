@@ -26,6 +26,7 @@
 ## ✨ امکانات
 
 - **هر مدل، هر ارائه‌دهنده:** هر سرویس سازگار با OpenAI (OpenAI، OpenRouter، Groq، DeepSeek، Together، Ollama محلی و…) با دریافت خودکار لیست مدل‌ها و تست اتصال.
+- **مدل‌های محلی:** با سرویس Ollama روی همین سیستم کار کن؛ کافیه «مدل محلی» رو روشن کنی، نیازی به کلید API نیست و مدل‌ها خودکار از `http://localhost:11434/v1` خونده می‌شن.
 - **بیش از ۹۰ سرور MCP آماده:** کاتالوگ دوزبانه در ۱۱ دسته (فایل، وب، برنامه‌نویسی، دیتابیس، ارتباطات، مالی و…). برای هر کدوم فرم اتصال با همون اطلاعات لازم (پوشه، کلید، توکن) و برچسب سطح خطر داره.
 - **تأیید پیش از اجرا:** ابزارهایی که ممکنه چیزی رو تغییر بدن (نوشتن، حذف، ارسال…) قبل از اجرا از تو اجازه می‌گیرن. برای هر سرور می‌تونی «هوشمند»، «همیشه بپرس» یا «هرگز نپرس» رو انتخاب کنی.
 - **حافظه‌ی سه‌لایه:** پیام‌های اخیر، خلاصه‌ی خودکار گفتگوهای بلند، و نکته‌های ماندگار درباره‌ی تو که با جستجوی سریع (FTS5) بازیابی می‌شن. هر مورد رو می‌تونی ببینی، حذف کنی یا کل حافظه رو خاموش کنی.
@@ -46,6 +47,7 @@
 ## 🚀 شروع سریع
 
 1. **تنظیمات ← مدل و API ← افزودن مدل.** یکی از پیش‌تنظیم‌ها (مثل OpenRouter) رو بزن، کلید API رو بذار، **دریافت لیست** رو بزن و مدل رو انتخاب کن. بعد **تست اتصال** و **ذخیره**.
+   برای مدل محلی: پیش‌تنظیم **Ollama** رو بزن (گزینه‌ی «مدل محلی» خودکار روشن می‌شه، کلید API نمی‌خواد)، **دریافت لیست** رو بزن و مدل رو انتخاب کن. Ollama باید روی سیستمت در حال اجرا باشه.
 2. **کاتالوگ MCP** (از سایدبار یا تب MCP): یک سرور مثل Filesystem رو انتخاب کن، پوشه‌ی مجاز رو بده و **افزودن** رو بزن. وضعیتش (متصل یا خطا) توی تنظیمات ← MCP دیده می‌شه.
 3. توی صفحه‌ی چت بنویس: «پوشه‌ی پروژه‌ام رو بررسی کن». دستیار ابزار رو صدا می‌زنه و اگه کاری تغییردهنده باشه اول ازت می‌پرسه.
 
@@ -165,6 +167,7 @@ git add -A && git commit -m "Release 0.2.0" && git tag v0.2.0 && git push && git
 ## ✨ Features
 
 - **Any model, any provider:** every OpenAI-compatible service (OpenAI, OpenRouter, Groq, DeepSeek, Together, local Ollama, …) with automatic model listing and a connection test.
+- **Local models:** run against Ollama on your own machine — turn on *Local model*, no API key needed, and models are listed automatically from `http://localhost:11434/v1`.
 - **90+ ready MCP servers:** a bilingual catalog in 11 categories (files, web, development, databases, communication, finance, …). Each entry has a connection form asking only for what it needs (folder, key, token) and a risk label.
 - **Approval before action:** tools that may change something (write, delete, send, …) ask for your permission first. Per server you choose *Smart*, *Always ask* or *Never ask*.
 - **Three-layer memory:** recent messages, an automatic rolling summary for long chats, and durable facts about you retrieved with fast full-text search (FTS5). You can inspect and delete each item, or switch memory off entirely.
@@ -185,6 +188,7 @@ The installer bundles the engine, `uv` and Node.js, so you do not need Python or
 ## 🚀 Quick start
 
 1. **Settings → Model & API → Add model.** Pick a preset (e.g. OpenRouter), paste your API key, press **Fetch list**, choose a model, then **Test connection** and **Save**.
+   For a local model: pick the **Ollama** preset (the *Local model* switch turns on by itself, no API key needed), press **Fetch list** and choose a model. Ollama must be running on your machine.
 2. **MCP catalog** (sidebar or the MCP tab): pick a server such as Filesystem, give it an allowed folder and press **Add**. Its status (connected or error) shows in Settings → MCP.
 3. In the chat, write: "Inspect my project folder". The assistant calls the tool, and asks first if the action would change something.
 

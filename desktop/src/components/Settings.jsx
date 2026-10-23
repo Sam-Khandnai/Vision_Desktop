@@ -120,21 +120,28 @@ function AccountTab({ onProfileChanged }) {
 }
 
 /* --------------------------------------------------------------- provider */
-const PRESETS = [
+const LOCAL_PRESETS = [
+  ['Ollama', 'http://localhost:11434/v1'],
+  ['LM Studio', 'http://localhost:1234/v1'],
+  ['llama.cpp', 'http://localhost:8080/v1'],
+  ['vLLM', 'http://localhost:8000/v1'],
+  ['Jan', 'http://localhost:1337/v1'],
+]
+const CLOUD_PRESETS = [
   ['OpenAI', 'https://api.openai.com/v1'],
   ['OpenRouter', 'https://openrouter.ai/api/v1'],
   ['Groq', 'https://api.groq.com/openai/v1'],
   ['DeepSeek', 'https://api.deepseek.com/v1'],
   ['Together', 'https://api.together.xyz/v1'],
-  ['Ollama', 'http://localhost:11434/v1'],
 ]
-const BLANK = { id: null, name: '', base_url: '', api_key: '', model_name: '', has_key: false }
+const BLANK = { id: null, name: '', base_url: '', api_key: '', model_name: '', has_key: false, local: false, context_tokens: '' }
 
 function ProviderTab({ onProvidersChanged }) {
   const { t, toast, confirm } = useApp()
   const [list, setList] = useState(null)
   const [form, setForm] = useState(null)
   const [models, setModels] = useState([])
+  const [found, setFound] = useState(null) // result of "detect local servers": null = not searched yet
   const [busy, setBusy] = useState('')
 
   const load = useCallback(async () => {
@@ -145,10 +152,18 @@ function ProviderTab({ onProvidersChanged }) {
 
   if (!list) return <div className="center pad"><Spinner /></div>
 
-  const body = () => ({ base_url: form.base_url, api_key: form.api_key, provider_id: form.id })
+  const body = () => ({ base_url: form.base_url, api_key: form.api_key, provider_id: form.id, local: form.local })
   const fetchModels = async () => {
     setBusy('models')
     try { setModels((await api.post('/api/providers/models', body())).models); } catch (e) { toast(t('modelsFailed') + ' ' + e.message, 'error') } finally { setBusy('') }
+  }
+  const detect = async () => {
+    setBusy('detect')
+    try { setFound((await api.get('/api/providers/detect-local')).servers) } catch (e) { toast(e.message, 'error') } finally { setBusy('') }
+  }
+  const pickFound = (s) => {
+    setForm({ ...form, local: true, name: form.name || s.name, base_url: s.base_url, model_name: form.model_name || s.models[0] || '' })
+    setModels(s.models)
   }
   const testConn = async () => {
     setBusy('test')
@@ -157,10 +172,11 @@ function ProviderTab({ onProvidersChanged }) {
   const save = async () => {
     setBusy('save')
     try {
-      const payload = { name: form.name, base_url: form.base_url, model_name: form.model_name, api_key: form.api_key }
+      const payload = { name: form.name, base_url: form.base_url, model_name: form.model_name, api_key: form.api_key,
+        local: form.local, context_tokens: Number(form.context_tokens) || 0 }
       if (form.id) await api.put(`/api/providers/${form.id}`, payload)
       else await api.post('/api/providers', payload)
-      setForm(null); setModels([]); await load(); toast(t('saved'))
+      setForm(null); setModels([]); setFound(null); await load(); toast(t('saved'))
     } catch (e) { toast(e.message, 'error') } finally { setBusy('') }
   }
   const remove = async (p) => {
@@ -173,15 +189,46 @@ function ProviderTab({ onProvidersChanged }) {
       <div className="tab-body">
         <h3>{form.id ? t('editProvider') : t('addProvider')}</h3>
         {!form.id && (
-          <div className="chips left">
-            {PRESETS.map(([n, u]) => <button key={n} className="chip" onClick={() => setForm({ ...form, base_url: u, name: form.name || n })}>{n}</button>)}
-          </div>
+          <>
+            <div className="preset-group">
+              <span className="muted small">{t('presetsLocal')}</span>
+              <div className="chips left">
+                {LOCAL_PRESETS.map(([n, u]) => <button key={n} className="chip" onClick={() => setForm({ ...form, local: true, base_url: u, name: form.name || n })}>{n}</button>)}
+              </div>
+              <div className="row gap wrap">
+                <button className="btn" onClick={detect} disabled={busy === 'detect'}>{busy === 'detect' ? <Spinner /> : null} {t('detectLocal')}</button>
+                {found && found.length === 0 && <span className="muted small">{t('detectNone')}</span>}
+              </div>
+              {found && found.length > 0 && (
+                <div className="chips left">
+                  {found.map((s) => <button key={s.base_url} className="chip on" onClick={() => pickFound(s)}>{s.name}{' · '}{t('detectFound', { n: s.models.length })}</button>)}
+                </div>
+              )}
+            </div>
+            <div className="preset-group">
+              <span className="muted small">{t('presetsCloud')}</span>
+              <div className="chips left">
+                {CLOUD_PRESETS.map(([n, u]) => <button key={n} className="chip" onClick={() => setForm({ ...form, local: false, base_url: u, name: form.name || n })}>{n}</button>)}
+              </div>
+            </div>
+          </>
         )}
         <Field label={t('providerName')}><input dir="auto" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="OpenRouter" /></Field>
-        <Field label="Base URL" help={t('baseUrlHelp')}><input dir="ltr" value={form.base_url} onChange={(e) => setForm({ ...form, base_url: e.target.value })} placeholder="https://api.example.com/v1" spellCheck={false} /></Field>
+        <Field label="Base URL" help={form.local ? t('localModelHelp') : t('baseUrlHelp')}><input dir="ltr" value={form.base_url} onChange={(e) => setForm({ ...form, base_url: e.target.value })} placeholder="https://api.example.com/v1" spellCheck={false} /></Field>
+        <div className="row between local-row">
+          <div><span className="strong">{t('localModel')}</span><p className="muted small">{t('localModelHint')}</p></div>
+          <Toggle checked={form.local} label={t('localModel')} onChange={(v) => setForm({ ...form, local: v })} />
+        </div>
+        {!form.local && (
         <Field label={t('apiKey')} help={form.has_key ? t('apiKeyStored') : t('apiKeyHelp')}>
           <input dir="ltr" type="password" autoComplete="off" value={form.api_key} onChange={(e) => setForm({ ...form, api_key: e.target.value })} placeholder={form.has_key ? '••••••••••••' : 'sk-…'} />
         </Field>
+        )}
+        {form.local && (
+          <Field label={t('contextTokens')} help={t('contextHelp')}>
+            <input dir="ltr" type="number" min="512" step="512" value={form.context_tokens ?? ''} onChange={(e) => setForm({ ...form, context_tokens: e.target.value })} placeholder="4096" />
+          </Field>
+        )}
         <Field label={t('modelId')}>
           <div className="row gap">
             <input dir="ltr" className="grow" list="model-options" value={form.model_name} onChange={(e) => setForm({ ...form, model_name: e.target.value })} placeholder="provider-model-id" spellCheck={false} />
@@ -193,11 +240,11 @@ function ProviderTab({ onProvidersChanged }) {
         <div className="row between">
           <button className="btn" onClick={testConn} disabled={busy === 'test' || !form.base_url || !form.model_name}>{busy === 'test' ? <Spinner /> : t('testConnection')}</button>
           <div className="row gap">
-            <button className="btn" onClick={() => { setForm(null); setModels([]) }}>{t('cancel')}</button>
+            <button className="btn" onClick={() => { setForm(null); setModels([]); setFound(null) }}>{t('cancel')}</button>
             <button className="btn primary" onClick={save} disabled={busy === 'save' || !form.base_url}>{busy === 'save' ? <Spinner /> : t('save')}</button>
           </div>
         </div>
-        <p className="muted">{t('keychainNote')}</p>
+        <p className="muted">{form.local ? t('localNote') : t('keychainNote')}</p>
       </div>
     )
   }
@@ -213,11 +260,11 @@ function ProviderTab({ onProvidersChanged }) {
           {list.map((p) => (
             <li key={p.id} className="card-row">
               <div className="grow">
-                <div className="strong" dir="auto">{p.name} {p.is_default && <span className="badge accent">{t('active')}</span>}</div>
+                <div className="strong" dir="auto">{p.name} {p.local && <span className="badge">{t('localBadge')}</span>} {p.is_default && <span className="badge accent">{t('active')}</span>} {!p.ready && <span className="badge risk-medium">{t('notReady')}</span>}</div>
                 <div className="muted small" dir="ltr">{p.model_name || '—'} · {p.base_url}</div>
               </div>
               {!p.is_default && <button className="btn" onClick={async () => { await api.post(`/api/providers/${p.id}/default`); load() }}>{t('makeActive')}</button>}
-              <button className="btn" onClick={() => setForm({ ...p, api_key: '' })}>{t('edit')}</button>
+              <button className="btn" onClick={() => setForm({ ...p, api_key: '', context_tokens: p.context_tokens || '' })}>{t('edit')}</button>
               <button className="icon-btn" aria-label={t('delete')} onClick={() => remove(p)}><Trash2 size={16} /></button>
             </li>
           ))}
