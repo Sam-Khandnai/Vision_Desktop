@@ -1,6 +1,6 @@
 {
   "name": "vision-desktop",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "private": true,
   "description": "Vision — local desktop AI assistant",
   "main": "electron/main.js",
